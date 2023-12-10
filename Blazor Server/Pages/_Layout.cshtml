@@ -1,0 +1,47 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@*@namespace LibraryApp.Pages*@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/site.css" rel="stylesheet" />
+    @*<link href="css/bootstrap-icons.min.css" rel="stylesheet" />*@
+    <link href="LibraryApp.styles.css" rel="stylesheet" />
+    <link href="manifest.json" rel="manifest" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+
+<body style="
+    direction: rtl;
+    /*  background:url(../background.png) #f5eee8;*/
+ /* background-repeat: no-repeat;*/
+/*background-size: 600px;
+background-attachment: fixed;
+background-blend-mode: luminosity;*/
+font-family:kitab-regular !important;
+">
+    @RenderBody()
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
+    <script src="~/Custom-scrpit.js"></script>
+
+</body>
+</html>

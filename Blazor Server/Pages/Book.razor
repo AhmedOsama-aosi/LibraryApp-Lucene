@@ -1,0 +1,285 @@
+﻿@page "/Book/{myvalue}"
+@*@page "/Book/{book}"*@
+@layout EmptyLayout
+@using Microsoft.AspNetCore.WebUtilities;
+@using System.Text;
+@using System.Text.Json;
+@using Microsoft.EntityFrameworkCore;
+
+<style>
+    /*.my-custom-scrollbar {
+        position: relative;
+        height: 55vh;
+        overflow: auto;
+    }
+
+    .table-wrapper-scroll-y {
+        display: block;
+    }
+
+    .custom_button {
+        height: fit-content;
+        margin: 0;
+    }
+
+    .selected {
+        background-color: lightgray;
+    }
+*/
+</style>
+@if (show_danger_alert)
+{
+    <ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+@if (book != null)
+{
+    <PageTitle>@book.Bk</PageTitle>
+    @*<div style="display:flex;flex-direction:row;justify-content:space-between;">*@
+        <div class="cat-book">
+        <div style="display:flex;flex-direction:row;justify-content:flex-start;flex:20">
+            <label class="item-center" style="font-size:1.6rem;">@book.Bk</label>
+        </div>
+        <div class="item-margin" style="display:flex;flex-direction:row;justify-content:flex-start;margin-right:0px;flex:8">
+            <input type="text" class="custom-select" style="margin-left:10px;width:90% !important" @bind=search_words />
+            <button class="btn btn-success"  @onclick="start_search">بحث</button>
+            @if (PagesList != null)
+            {
+                <p style="margin:7px 0px" role="status">نتائج البحث: @searched</p>
+            }
+
+           
+        </div>
+   @*    <div>
+            <button class="btn btn-success" style="margin:0px 10px">تعديل</button>
+       </div>*@
+      
+    </div>
+    <BookView selectedBook="book" showtitle="false" selectedPage="selectedPage"></BookView>
+    
+    if (PagesList != null)
+    {
+        
+        <div style="display:flex;flex-direction:row;justify-content:space-between">
+            <p role="status">نتائج البحث: @searched</p>
+            <span class="oi oi-x btn" style="color:#1d764d" @onclick="closeSearch"> </span>
+        </div>
+        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                    
+                       
+                        <th scope="col">الجزء</th>
+                        <th scope="col">الصفحة</th>
+                        <th scope="col">النص</th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (Model.Book item in PagesList)
+                    {
+                        var rowClass = item == selectedPage ? "selected" : "";
+                        <tr @onclick="()=>View(item)" class="@rowClass" style="cursor:pointer;">
+
+                            
+                            
+                            <td>@item.Part</td>
+                            <td>@item.Page</td>
+                            <td width="85%">
+                                <div style="height:25px;overflow:clip;">@((MarkupString)item.Nass)</div>
+                            </td>
+                        </tr>
+                    }
+
+
+                </tbody>
+
+
+            </table>
+        </div>
+        <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin:10px">
+            <button class="btn btn-light" @onclick="previous">السابق</button>
+            <p style="height:fit-content;margin:0;">@pagenumber من @pages</p>
+            <button class="btn btn-light" @onclick="next">التالي</button>
+
+
+        </div>
+    }
+}
+@code {
+    [Parameter]
+    public Model._0bok book { get; set; }
+    Model.Book[] selectedpart { get; set; }
+    int bookid { get; set; }
+    int pageindex = 0;
+    @inject NavigationManager NavigationManager
+
+    [Parameter]
+    public string myvalue { get; set; }
+    protected override void OnParametersSet()
+    {
+        //the param will be set now
+        try
+        {
+            bookid = int.Parse(myvalue);
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+      
+        //var bood = book;
+    }
+    //public Model.Book selectedPage { get; set; }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            try
+            {
+                if (bookid != null || bookid != 0)
+                {
+                    //using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+                    //{
+                    //    book = db._0boks.Where(b => b.Bkid == bookid).First();
+                    //}
+                    using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+                    {
+                        selectedPage = db.Books.Where(b => b.Rowid == bookid).First();
+                        book = db._0boks.Where(b => b.Bkid == selectedPage.Bookid).First();
+                    }
+                }
+                StateHasChanged();
+            }
+            catch (Exception e)
+            {
+                denger_alert(e);
+            }
+           
+            //var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+            //if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("data", out var data))
+            //{
+            //    bookid = int.Parse(data[0]);
+            //    using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            //    {
+            //        book = db._0boks.Where(b => b.Bkid == bookid).First();
+
+            //    }
+            //}
+           
+        }
+    }
+   
+
+    Model.LibraryDbContext db;
+    string search_words { get; set; }
+    IQueryable<Model.Book> result;
+    List<Model.Book> PagesList { get; set; }
+    Model.Book selectedPage { get; set; }
+    double searched { get; set; }
+
+    private void start_search()
+    {
+        try
+        {
+            PagesList = null;
+            result = null;
+            searched = 0;
+            skip = 0;
+            if (db != null)
+            {
+                db.Dispose();
+            }
+            db = new Model.LibraryDbContext();
+            string _search_words = $"\"{search_words}\"";
+          //  result = db.Books.Where(x => x.Bookid == book.Bkid && EF.Functions.Contains(x.Nass, _search_words));
+            result = db.Books.FromSqlRaw($"select bb.* from book as bb inner join containstable(book,nass,'formsof(inflectional,{search_words})') as ct on bb.rowid=ct.[key] where bb.bookid={book.Bkid} order by ct.Rank desc OFFSET 0 ROWS ");
+
+            searched = result.Count();
+            double v = searched / 10;
+            pages = Math.Ceiling(v);
+            pagenumber = 1;
+            change_list();
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+       
+    }
+    private void View(Model.Book _page)
+    {
+        selectedPage = _page;
+     //   StateHasChanged();
+    }
+    int skip = 0;
+    double pages = 0;
+    int pagenumber = 0;
+    int index = 1;
+    void next()
+    {
+        if (pagenumber < pages)
+        {
+            skip += 10;
+            pagenumber += 1;
+            index = 1;
+            change_list();
+        }
+    }
+    void previous()
+    {
+        if (skip >= 10)
+        {
+            skip -= 10;
+            pagenumber -= 1;
+            index = 1;
+            change_list();
+        }
+    }
+    void change_list()
+    {
+
+        PagesList = result.Skip(skip).Take(10).ToList();
+       
+      
+    }
+    void closeSearch()
+    {
+        search_words = "";
+        PagesList = null;
+        result = null;
+        if (db != null)
+        {
+            db.Dispose();
+        }
+    }
+
+    string ErrorMessage { get; set; }
+    bool show_danger_alert = false;
+    async void denger_alert(Exception e)
+    {
+        ErrorMessage = e.Message;
+        show_danger_alert = !show_danger_alert;
+        await Task.Delay(5500);
+        show_danger_alert = !show_danger_alert;
+        await InvokeAsync(() =>
+               {
+
+                   StateHasChanged();
+               });
+    }
+ 
+
+    @implements IDisposable;
+public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        if (db != null)
+        {
+            db.Dispose();
+        }
+    }
+}

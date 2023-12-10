@@ -1,0 +1,402 @@
+﻿@page "/Quran"
+@using System.Text;
+@using Microsoft.EntityFrameworkCore;
+<MainTitle title="القرآن الكريم"></MainTitle>
+
+
+@if (show_danger_alert)
+{
+    <ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+
+<div class="page-body">
+    @if (Page != null && Page.Count != 0)
+    {
+        <div class="custom-row" style="justify-content:space-between;">
+            <div class="custom-row" style="width:30%">
+                <span class="item-margin item-center">جزء</span>
+                <input type="text" class="custom-select item-margin" @bind-value=@PartNum style="width:12vh !important" />
+                <span class="item-margin item-center">السورة</span>
+                <input type="text" class="custom-select  item-margin" @bind-value=@SorahName style="width:12vh !important" />
+            </div>
+            <div class="item-margin" style="display:flex;flex-direction:row;justify-content:flex-end;height:2%">
+                <input type="text" class="custom-select" style="margin:0px 10px;" @bind=search_words />
+                <button class="btn btn-success" @onclick="start_search">بحث</button>
+                @if (PagesList != null)
+                {
+                    <lable class="item-margin" role="status">نتائج البحث: @CustomServices.EnToAr($"{searched}")</lable>
+                }
+
+
+            </div>
+        </div>
+    }
+    <div class="custom-row">
+
+
+
+        <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="font-size:120%;flex:3;Max-height:72vh !important;background-color: lightgoldenrodyellow;border-radius:8px;padding:10px;border-left: #198754 2px solid;">
+            <table class="table table-hover " style="">
+                <thead class="">
+                    <tr>
+                        <th scope="col">السور</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (QuranTitles != null)
+                    {
+
+                        @foreach (var item in QuranTitles)
+                        {
+                            <tr style="cursor:pointer;" @onclick="()=>get_sora_first_page((int)item.Id)">
+                                <td>@item.Tit</td>
+                            </tr>
+                        }
+
+
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="font-size:120%;flex:2;Max-height:72vh !important;background-color: lightgoldenrodyellow;border-radius:8px;padding:10px;border-left: #198754 2px solid;">
+            <table class="table table-hover " style="">
+                <thead class="">
+                    <tr>
+                        <th scope="col">الايات</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Sora != null)
+                    {
+
+                        @foreach (var item in Sora)
+                        {
+                            <tr style="cursor:pointer;" @onclick="()=>get_page((int)item.Page)">
+                                <td>@CustomServices.EnToAr($"{item.Aya}")</td>
+                            </tr>
+                        }
+
+
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+
+        <div style=" flex:20;">
+
+
+
+            @*                        <p style="height:60vh;overflow:auto">@selectedpart[pageindex].Nass</p>*@
+            <div style="width:100%;height:72vh;font-family:UthmanicHafs;font-size:200%;background-color: lightgoldenrodyellow;border-radius:8px;overflow:auto;padding:10px;flex:20;border-right: #198754 2px solid;">
+                @if (Page!=null && Page.Count!=0 )
+                {
+                    @*<h4 class="alert-heading">الصفحة @(pageindex + 1) من @selectedpart.Count</h4>*@
+                   @* <div style="display:flex;flex-direction:row;justify-content:space-between;align-items: center;">
+                        <h4 class="alert-heading" style="margin-bottom: 0px;">الصفحة @(selectedpart[pageindex].Page)</h4>
+                        @if (bookmarked)
+                        {
+
+                            <button class="btn btn-outline-dark " style="display: flex; flex-direction: row; align-items: center;font-size: 12px; padding: 1.5px 8px;" @onclick="removebookmark">
+                                حذف العلامة مرجعية
+                                <span class="oi oi-bookmark" style="margin-right: 10px;"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-dark " style="display: flex; flex-direction: row; align-items: center;font-size: 12px; padding: 1.5px 8px;" @onclick="addbookmark">
+                                اضف علامة مرجعية
+                                <span class="oi oi-bookmark" style="margin-right: 10px;"></span>
+                            </button>
+
+                        }
+                    </div>*@
+                    @*<h4 class="alert-heading">الصفحة @(selectedpart[pageindex].Page)</h4>*@
+
+                    @((MarkupString)formatedpage)
+                }
+                else
+                {
+                    <h4 class="alert-heading">لا يوجد صفحات</h4>
+                }
+            </div>
+
+
+
+        </div>
+
+    </div>
+  
+    <div class="custom-row" style="justify-content:space-between !important;">
+        <button class="btn btn-success item-margin" style="" @onclick="previous">السابق</button>
+        <div style="display:flex;flex-direction:row;">
+            @*<input class="custom-select item-margin" style="width:10vw !important; text-align:center" value="@(Page[pageNum].Page)" @onchange=input_change />*@
+            @if(Page!=null){
+                <input class="custom-select item-margin" style="width:10vw !important; text-align:center" value="@(CustomServices.EnToAr($"{pageNum}"))" />
+            }
+            
+            <span class="item-margin item-center">من</span>
+            <span class="item-margin item-center">@CustomServices.EnToAr("604")</span>
+        </div>
+        <button class="btn btn-success item-margin" style="" @onclick="next">التالي</button>
+    </div>
+    @if (PagesList != null)
+    {
+
+    <div style="display:flex;flex-direction:row;justify-content:space-between">
+            <p role="status">نتائج البحث: @CustomServices.EnToAr($"{searched}")</p>
+        <span class="oi oi-x btn" style="color:#1d764d" @onclick="closeSearch"> </span>
+    </div>
+    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+
+
+                    <th scope="col">الجزء</th>
+                    <th scope="col">السورة</th>
+                    <th scope="col">الاية</th>
+                        <th scope="col">النص</th>
+                    <th scope="col">الصفحة</th>
+                   
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (Model.Book item in PagesList)
+                {
+                        string rowClass = "";
+                        @if (selectedPage != null)
+                        {
+                            rowClass = item.Id == selectedPage.Id ? "selected" : "";
+                        }
+                        
+                    <tr @onclick="()=>View(item)" class="@rowClass" style="cursor:pointer;">
+
+
+
+                        <td>@CustomServices.EnToAr($"{item.Part}")</td>
+                        <td>@QuranTitles.Where(s=>s.Id==item.Sora).First().Tit</td>
+                        <td>@CustomServices.EnToAr($"{item.Aya}")</td>
+                        <td width="85%">
+                            <div style="height:25px;overflow:clip;">@((MarkupString)item.Nass)</div>
+                        </td>
+                        <td>@CustomServices.EnToAr($"{item.Page}")</td>
+                    </tr>
+                }
+
+
+            </tbody>
+
+
+        </table>
+    </div>
+    <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin:10px">
+            <button class="btn btn-light" @onclick="previous_search_result">السابق</button>
+            <p style="height:fit-content;margin:0;">@CustomServices.EnToAr($"{pagenumber}") من @CustomServices.EnToAr($"{pages}")</p>
+            <button class="btn btn-light" @onclick="next_search_result">التالي</button>
+
+
+    </div>
+    }
+	</div>
+@code {
+    Model.Book Aya { get; set; }
+    List<Model.Book> QuranAyat { get; set; }
+    List<Model.Book> Sora { get; set; }
+    List<Model.Book> Page { get; set; }
+    List<Model.Title> QuranTitles { get; set; }
+    List<int> Parts { get; set; }
+    string PartNum { get; set; }
+    string SorahName { get; set; }
+    // int Parts { get; set; }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            get_data();
+            StateHasChanged();
+        }
+    }
+    int pageNum { get; set; }
+    void get_data()
+    {
+        Parts = new List<int>();
+        for (int i = 1; i < 31; i++)
+        {
+            Parts.Add(i);
+        }
+
+        using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+        {
+
+            QuranAyat = db.Books.Where(b => b.Bookid == 125).OrderBy(x => x.Id).ToList();
+            QuranTitles = db.Titles.Where(b => b.Bookid == 125).OrderBy(x => x.Id).ToList();
+        }
+        get_sora_first_page(1);
+    }
+    void part_clicked(int _partid)
+    {
+        pageNum = QuranAyat.Where(p => p.Part == _partid).OrderBy(p => p.Id).First().Page??1;
+        get_page(pageNum);
+    }
+
+
+    void get_sora_first_page(int _soraid)
+    {
+        Sora = QuranAyat.Where(p => p.Sora == _soraid).OrderBy(a=>a.Aya).ToList();
+        pageNum =(int)Sora.Where(p => p.Aya == 1).First().Page!;
+
+        get_page(pageNum);
+    }
+    void get_page(int _pageid)
+    {
+        Page = QuranAyat.Where(p => p.Page == _pageid).ToList();
+        PartNum = CustomServices.EnToAr($"{Page[0].Part}");
+        SorahName = QuranTitles.Where(t => t.Id == Page[0].Sora).First().Tit??"الفاتحة";
+        formatPage();
+    }
+    string formatedpage = "";
+    void formatPage()
+    {
+        formatedpage = "";
+        foreach (var item in Page)
+        {
+            if (item.Aya==1)
+            {
+                formatedpage += $"<p style=\"font-family: 'thuluth';margin:0px auto;width: fit-content;color: darkred;\">  سورة {QuranTitles.Where(p => p.Id == item.Sora).First().Tit}  </p>";
+            }
+            formatedpage += "<span>" + item.Nass + " " + CustomServices.EnToAr($"{item.Aya}") + " " + "</span>";
+        }
+
+    }
+    void next()
+    {
+        if (pageNum < 604)
+        {
+            selectedPage = null;
+            pageNum++;
+            get_page(pageNum);
+        }
+
+    }
+    void previous(){
+
+        if (pageNum > 1)
+        {
+            selectedPage = null;
+            pageNum--;
+            get_page(pageNum);
+        }
+
+    }
+
+    //search
+    //*************************************/
+    void next_search_result()
+    {
+        if (pagenumber < pages)
+        {
+            skip += 10;
+            pagenumber += 1;
+            index = 1;
+            change_list();
+        }
+    }
+    void previous_search_result()
+    {
+        if (skip >= 10)
+        {
+            skip -= 10;
+            pagenumber -= 1;
+            index = 1;
+            change_list();
+        }
+    }
+
+
+
+    Model.LibraryDbContext db;
+    string search_words { get; set; }
+    IQueryable<Model.Book> result;
+    List<Model.Book> PagesList { get; set; }
+    Model.Book? selectedPage { get; set; }
+    double searched { get; set; }
+    int skip = 0;
+    double pages = 0;
+    int pagenumber = 0;
+    int index = 1;
+    public void start_search()
+    {
+        try
+        {
+            PagesList = null;
+            result = null;
+            searched = 0;
+            skip = 0;
+            if (db != null)
+            {
+                db.Dispose();
+            }
+            db = new Model.LibraryDbContext();
+            string _search_words = $"\"{search_words}\"";
+            //  result = db.Books.Where(x => x.Bookid == book.Bkid && EF.Functions.Contains(x.Nass, _search_words));
+            result = db.Books.FromSqlRaw($"select bb.* from book as bb inner join containstable(book,nass,'formsof(inflectional,{search_words})') as ct on bb.rowid=ct.[key] where bb.bookid=125 order by ct.Rank desc OFFSET 0 ROWS ");
+
+            searched = result.Count();
+            double v = searched / 10;
+            pages = Math.Ceiling(v);
+            pagenumber = 1;
+            change_list();
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+
+        }
+
+    }
+    void change_list()
+    {
+        PagesList = result.Skip(skip).Take(10).ToList();
+    }
+    void closeSearch()
+    {
+        search_words = "";
+        PagesList = null;
+        result = null;
+        if (db != null)
+        {
+            db.Dispose();
+        }
+    }
+    private void View(Model.Book _page)
+    {
+        pageNum =(int)_page.Page!;
+        get_page(pageNum);
+        selectedPage = _page;
+    }
+    //*************************************/
+
+    string ErrorMessage = "";
+    bool show_danger_alert = false;
+    async void denger_alert(Exception e)
+    {
+        ErrorMessage = e.Message;
+        show_danger_alert = !show_danger_alert;
+        await Task.Delay(5500);
+        show_danger_alert = !show_danger_alert;
+         InvokeAsync(() =>
+               {
+                  
+                   StateHasChanged();
+               }).Wait();
+    }
+}

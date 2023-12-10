@@ -1,0 +1,113 @@
+﻿@page "/Bookmarks"
+@using Microsoft.EntityFrameworkCore;
+
+<MainTitle title="العلامات المرجعية"></MainTitle>
+@if (show_danger_alert)
+{
+	<ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+
+<div class="page-body">
+	<div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="">
+		<table class="table table-hover ">
+			<thead>
+				<tr>
+				
+					<th>اسم الكتاب</th>
+					<th>الجزء</th>
+					<th>الصفحة</th>
+
+				</tr>
+			</thead>
+			<tbody>
+				@if (bookmarklist!= null)
+				{
+					@foreach (Model.Book book in bookmarklist)
+					{
+					
+						<tr style="cursor:default;" @onclick="()=>gotobook(book.Rowid)">
+
+							<td style="width:42%;">@book.BookNavigation.Bk</td>
+							<td>@book.Part</td>
+							<td>@book.Page</td>
+						
+
+						</tr>
+					}
+				}
+			
+			</tbody>
+		</table>
+	</div>
+</div>
+@code {
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		if (firstRender)
+		{
+			try
+			{
+				using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+				{
+					bookmarklist = (from b in db.Users join p in db.Books on b.Bookmark equals p.Rowid select p).Include(x => x.BookNavigation).ToList();
+					foreach (var item in bookmarklist)
+					{
+
+						var part_pages = db.Books.Where(p => p.Bookid == item.Bookid && p.Part == item.Part).Select(p=>p.Rowid).OrderBy(p => p).ToList();
+						var page = part_pages.Where(p => p== item.Rowid).First();
+						var index = part_pages.IndexOf(page);
+						item.Page = index + 1;
+						int part = db.Books.Where(b => b.Bookid == item.Bookid).Min(p => p.Part)!.Value;
+						if (part == 0)
+						{
+							item.Part = (short)(item.Part! + 1);
+						}
+					}
+				}
+				StateHasChanged();
+			}
+			catch (Exception e)
+			{
+				denger_alert(e);
+			}
+
+			
+		}
+	}
+	public List<Model.Book> bookmarklist { get; set; }
+
+	@inject IJSRuntime JSRuntime
+	@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
+	void gotobook(int id)
+	{
+		//var url = $"/Book?data={id}";
+
+		try
+		{
+			var url = $"/Book/{id}";
+			InvokeAsync(() => JSRuntime.InvokeVoidAsync("open", url, "_blank"));
+		}
+		catch (Exception e)
+		{
+			denger_alert(e);
+		}
+
+	}
+
+
+	string ErrorMessage { get; set; }
+	bool show_danger_alert = false;
+	async void denger_alert(Exception e)
+	{
+		ErrorMessage = e.Message;
+		show_danger_alert = !show_danger_alert;
+		await Task.Delay(5500);
+		show_danger_alert = !show_danger_alert;
+		await InvokeAsync(() =>
+				{
+
+					StateHasChanged();
+				});
+	}
+}

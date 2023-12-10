@@ -1,0 +1,135 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" style="font-family:thuluth;font-size:18px;font-weight:100;margin-top:-10px" href="">المكتبة الصوفية</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+@*@inject NavigationManager nav*@
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu" style="overflow:clip; transition:width none">
+    <nav class="flex-column" style="overflow:auto;">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="" Match="NavLinkMatch.All" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-home customnav_icon" aria-hidden="true" style="margin:0 auto;"></span>
+                </div>
+                
+                <div class="customnav_title ">الرئيسية</div>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="search" style="font-size:20px;font-weight:800">
+                 <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-magnifying-glass customnav_icon" aria-hidden="true"></span>
+                     </div>
+               
+                <div class="customnav_title">بحث</div>
+
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="Booklist" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-book customnav_icon" aria-hidden="true"></span>
+                </div>
+            
+                <div class="customnav_title"> قائمة<span style="color:#00000000;">_</span>الكتب</div>
+
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="Bookmarks" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-bookmark customnav_icon" aria-hidden="true" style=""></span>
+                </div>
+             
+                <div class="customnav_title">  علامة<span style="color:#00000000;">_</span>مرجعية</div>
+
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="ManageBooks" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-pencil customnav_icon" aria-hidden="true"></span>
+                </div>
+              
+                <div class="customnav_title"> ادارة<span style="color:#00000000;">_</span>الكتب</div>
+
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="ManageCategories" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-list-rich customnav_icon" aria-hidden="true"></span>
+                </div>
+              
+                <div class="customnav_title">ادارة<span style="color:#00000000;">_</span>الاقسام</div>
+
+            </NavLink>
+        </div>
+        
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="Quran" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                @*    <span class="material-symbols-rounded customnav_icon" style="margin-right: 5px; ">
+                        import_contacts
+                    </span>*@
+                    <svg xmlns="http://www.w3.org/2000/svg" class="customnav_icon" height="28" viewBox="0 -960 960 960" width="32"><path d="M248-300q53.566 0 104.283 12.5T452-250v-427q-45-30-97.619-46.5Q301.763-740 248-740q-38 0-74.5 9.5T100-707v434q31-14 70.5-20.5T248-300Zm264 50q50-25 98-37.5T712-300q38 0 78.5 6t69.5 16v-429q-34-17-71.822-25-37.823-8-76.178-8-54 0-104.5 16.5T512-677v427Zm-30 90q-51-38-111-58.5T248-239q-36.537 0-71.768 9Q141-221 106-208q-23.1 11-44.55-3Q40-225 40-251v-463q0-15 7-27.5T68-761q42-20 87.395-29.5Q200.789-800 248-800q63 0 122.5 17T482-731q51-35 109.5-52T712-800q46.868 0 91.934 9.5Q849-781 891-761q14 7 21.5 19.5T920-714v463q0 27.894-22.5 42.447Q875-194 853-208q-34-14-69.232-22.5Q748.537-239 712-239q-63 0-121 21t-109 58ZM276-489Z" /></svg>
+                </div>
+              
+               
+                <div class="customnav_title"> القرآن<span style="color:#00000000;">_</span>الكريم</div>
+
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="Export" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-account-logout customnav_icon" aria-hidden="true"></span>
+                </div>
+            
+
+                <div class="customnav_title"> تصدير</div>
+
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="Import" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-account-login customnav_icon" aria-hidden="true"></span>
+                </div>
+               
+
+                <div class="customnav_title">استيراد</div>
+
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link cutomnav_link" href="Setting" style="font-size:20px;font-weight:800">
+                <div class="coustomnav_iconcontainer">
+                    <span class="oi oi-cog customnav_icon" aria-hidden="true"></span>
+                </div>
+                
+                <div class="customnav_title">الاعدادات</div>
+            
+
+            </NavLink>
+        </div>
+        
+      
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    string se = "/search";
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

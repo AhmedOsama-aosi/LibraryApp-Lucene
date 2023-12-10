@@ -1,0 +1,25 @@
+﻿@typeparam T 
+<select @bind=selected_id>
+	@if (local_list != null)
+	{
+		foreach (var item in local_list)
+		{
+			//<option value="@item.Id">@item.Name</option>
+		}
+	}
+	else
+	{
+		<option>لا يوجد اقسام</option>
+	}
+</select>
+
+@code {
+	[Parameter]
+	public int selected_id { get; set; }
+	[Parameter]
+	public string type { get; set; }
+
+	[Parameter]
+	public List<T> local_list { get; set; }
+
+}

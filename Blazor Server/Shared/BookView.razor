@@ -1,0 +1,524 @@
+﻿@using System.Text.RegularExpressions;
+@using Microsoft.EntityFrameworkCore;
+
+
+@if (show_danger_alert)
+{
+    <ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+
+@if (selectedBook != null)
+{
+    if (book_id != selectedBook.Bkid)
+    {
+
+        try
+        {
+            book_id = selectedBook.Bkid;
+            pageindex = 0;
+            short part_num = 0;
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                partList = db.Books.Where(b => b.Bookid == selectedBook.Bkid).Select(x => x.Part).Distinct().OrderBy(x => x.Value).ToList();
+
+                part_num = partList[0].Value;
+                selectedpart = db.Books.Where(b => b.Bookid == selectedBook.Bkid && b.Part == part_num).OrderBy(b => b.Page).ToList();
+            }
+            // selectedpart = selectedBook.Books.Where(b => b.Part == 1).OrderBy(b => b.Id).ToList();
+            page_changed();
+            get_titles();
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+      
+    }
+    if (selectedPage != null)
+    {
+        if(selectedPage.Id!= pageId)
+        {
+
+            try
+            {
+                if (selectedpart[0].Part != selectedPage.Part)
+                {
+                    short part_num = 0;
+                    using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+                    {
+                        part_num = (short)selectedPage!.Part!;
+                        selectedpart = db.Books.Where(b => b.Bookid == selectedBook.Bkid && b.Part == part_num).OrderBy(b => b.Page).ToList();
+                        pageindex = selectedpart.IndexOf(selectedpart.Where(p => p.Id == selectedPage.Id).First());
+                    }
+                    get_titles();
+                }
+                else
+                {
+                    pageindex = selectedpart.IndexOf(selectedpart.Where(p => p.Id == selectedPage.Id).First());
+                }
+
+                page_changed();
+            }
+            catch (Exception e)
+            {
+                denger_alert(e);
+            }
+
+           
+        }
+    }
+
+    @if (showtitle)
+    {
+        <div style="display:flex;flex-direction:row;justify-content:space-between">
+            <div style="display:flex;flex-direction:row;justify-content:flex-start">
+                <h3 style="width: 48vw; font-size: 1.4rem;">
+                    @selectedBook.Bk
+                </h3>
+            </div>
+
+        </div>
+    }
+   
+    @*        <div class="table-wrapper-scroll-y my-custom-scrollbar" style="flex:1;">*@
+    <div class="custom-row" style="justify-content:space-between;">
+        @if (selectedBook.Books != null)
+        {
+            <div style="display:flex;flex-direction:row;">
+                <span class="item-margin item-center">الجزء</span>
+                <select @onchange=change_part_event class="custom-select item-margin " style="width:10vh !important;">
+
+                    @foreach (var item in partList)
+                    {
+                        <option class="dropdown-item" value=@item.Value selected="@(selectedpart[pageindex].Part==item.Value?true:false)">
+                            @if (partList[0].Value == 0)
+                            {
+                                @(item.Value + 1)
+
+                            }
+                            else
+                            {
+                                @item.Value
+                            }
+
+
+
+                        </option>
+                    }
+                </select>
+                <span class="item-margin item-center">من</span>
+                <span class="item-margin item-center">@partList.Count</span>
+           </div>
+
+           @* <div >
+                @if (bookmarked)
+                {
+                    <button class="btn btn-success item-margin" style="" @onclick="removebookmark">حذف العلامة مرجعية</button>
+
+                }
+                else
+                {
+                    <button class="btn btn-success item-margin" style="" @onclick="addbookmark">علامة مرجعية</button>
+
+                }
+
+            </div>*@
+
+
+            <div style="display: flex; align-items: center;">
+                @if (show_NewTab_button)
+                {
+                    <button class="btn btn-success item-margin" @onclick="()=> openBookOnNewTab()" style="color:white;margin:0px 10px;height:fit-content;padding:2px 5px;">نافذة جديدة<span class="oi oi-external-link btn" style="color:white;padding:0px 4px;font-size:12px;"></span></button>
+
+                }
+            </div>
+        }
+
+    </div>
+    <div class="custom-row">
+
+
+
+        <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="font-size:120%;flex:5;Max-height:72vh !important;background-color: lightgoldenrodyellow;border-radius:8px;padding:10px;border-left: #198754 2px solid;">
+            <table class="table table-hover " style="">
+                <thead class="">
+                    <tr>
+                        <th scope="col">العناوين</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Titles_List != null)
+                    {
+
+                        @foreach (var item in Titles_List)
+                        {
+                            <tr style="cursor:pointer;" @onclick="()=>select_title(item)">
+                                <td>@item.Tit</td>
+                            </tr>
+                        }
+
+
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+        <div style=" flex:20;">
+
+           
+
+                @*                        <p style="height:60vh;overflow:auto">@selectedpart[pageindex].Nass</p>*@
+            <div style="width:100%;height:72vh;font-size:150%;background-color: lightgoldenrodyellow;border-radius:8px;overflow:auto;padding:10px;flex:20;border-right: #198754 2px solid;">
+                @if (selectedpart.Count != 0)
+                {
+                    @*<h4 class="alert-heading">الصفحة @(pageindex + 1) من @selectedpart.Count</h4>*@
+                    <div style="display:flex;flex-direction:row;justify-content:space-between;align-items: center;">
+                        <h4 class="alert-heading" style="margin-bottom: 0px;">الصفحة @(selectedpart[pageindex].Page)</h4>
+                        @if (bookmarked)
+                        {
+
+                            <button class="btn btn-outline-dark " style="display: flex; flex-direction: row; align-items: center;font-size: 12px; padding: 1.5px 8px;" @onclick="removebookmark">
+                                حذف العلامة مرجعية
+                                <span class="oi oi-bookmark" style="margin-right: 10px;"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-dark " style="display: flex; flex-direction: row; align-items: center;font-size: 12px; padding: 1.5px 8px;" @onclick="addbookmark">
+                                اضف علامة مرجعية 
+                                <span class="oi oi-bookmark" style="margin-right: 10px;"></span>
+                            </button>
+
+                        }
+                    </div>
+                    @*<h4 class="alert-heading">الصفحة @(selectedpart[pageindex].Page)</h4>*@
+               
+                    @((MarkupString)converted_text)
+                }
+                else
+                {
+                    <h4 class="alert-heading">لا يوجد صفحات</h4>
+                }
+                </div>
+           
+
+
+        </div>
+
+    </div>
+
+    <div class="custom-row" style="justify-content:space-between !important;">
+        <button class="btn btn-success item-margin" style="" @onclick="PerviousPage">السابق</button>
+        <div style="display:flex;flex-direction:row;">
+            <input class="custom-select item-margin" style="width:10vw !important; text-align:center" value="@(pageindex+1)" @onchange=input_change />
+            <span class="item-margin item-center">من</span>
+            <span class="item-margin item-center">@selectedpart.Count</span>
+        </div>
+        <button class="btn btn-success item-margin" style="" @onclick="NextPage">التالي</button>
+    </div>
+}
+
+@code {
+
+    string converted_text = "";
+    int pageindex = 0;
+    int pageId = 0;
+    int book_id = 0;
+    [Parameter]
+    public Model._0bok selectedBook { get; set; }
+    [Parameter]
+    public bool showtitle { get; set; }
+    [Parameter]
+    public bool showbookmark { get; set; } 
+    [Parameter]
+    public bool  show_NewTab_button  { get; set; }
+    [Parameter]
+    public Model.Book? selectedPage { get; set; }
+
+    List<short?>partList { get; set; }
+    List<Model.Book> selectedpart { get; set; }
+    List<Model.Title> Titles_List { get; set; }
+
+    protected override  void OnInitialized()
+    {
+
+        try
+        {
+            book_id = selectedBook.Bkid;
+            short part_num = 0;
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                partList = db.Books.Where(b => b.Bookid == selectedBook.Bkid).Select(x => x.Part).Distinct().OrderBy(x => x.Value).ToList();
+            }
+            if (selectedPage != null)
+            {
+                part_num = (short)selectedPage.Part!;
+            }
+            else
+            {
+                part_num = partList[0].Value;
+            }
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                selectedpart = db.Books.Where(b => b.Bookid == selectedBook.Bkid && b.Part == part_num).OrderBy(b => b.Id).ToList();
+            }
+            if (selectedPage != null)
+            {
+                pageindex = selectedpart.IndexOf(selectedpart.Where(p => p.Id == selectedPage.Id).First());
+            }
+            else
+            {
+
+                pageindex = 0;
+            }
+            change_part(part_num);
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+
+    }
+
+    void format_Text()
+    {
+        if (selectedpart != null && selectedpart.Count != 0)
+        {
+            pageId = selectedpart[pageindex].Id;
+            converted_text = selectedpart[pageindex].Nass;
+            converted_text = converted_text.Replace("\n", "<br>");
+            converted_text = converted_text.Replace("\r", "<br>");
+            // converted_text = Regex.Replace(converted_text, "(<span.*?[>])", "<span style='color:green;'>");
+            converted_text = Regex.Replace(converted_text, "(<span.*?[>])", "titlestart");
+            converted_text = Regex.Replace(converted_text, "(<\\/span.*?[>])", "titleend");
+            converted_text = System.Text.RegularExpressions.Regex.Replace(converted_text, @"([^\u0621-\u064A\s(<br>)\\n\d\w])", @"<span style='color:red;'>$&</span>");
+            converted_text = Regex.Replace(converted_text, "(titlestart)", "<span style='color:green;'>");
+            converted_text = Regex.Replace(converted_text, "(titleend)", "</span>");
+        }
+        else
+        {
+            converted_text = "";
+        }
+
+    }
+    void change_part_event(ChangeEventArgs e)
+    {
+        change_part(short.Parse(e.Value.ToString()));
+    }
+    void change_part(short part)
+    {
+
+        try
+        {
+            if (selectedpart != null && selectedpart.Count != 0)
+            {
+                if (part != selectedpart[0].Part)
+                {
+                    using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+                    {
+
+                        selectedpart = db.Books.Where(b => b.Bookid == selectedBook.Bkid && b.Part == part).OrderBy(b => b.Id).ToList();
+                        pageindex = 0;
+                    }
+
+
+                }
+
+                page_changed();
+                get_titles();
+            }
+            else
+            {
+                Titles_List = null;
+            }
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+
+        // pageindex = 0;
+
+    }
+
+    void get_titles()
+    {
+
+        try
+        {
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                Titles_List = (from t in db.Titles join b in db.Books on t.Id equals b.Id where b.Bookid == selectedBook.Bkid && b.Part == selectedpart[0].Part && t.Bookid == selectedBook.Bkid  select t).ToList();
+                Titles_List = Titles_List.OrderBy(t => t.Id).ThenBy(t => t.Lvl).ThenBy(t => t.Sub).ToList();
+            }
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+       
+    }
+    private void NextPage()
+    {
+        selectedPage = null;
+        if (pageindex < selectedpart.Count - 1)
+        {
+            pageindex++;
+            page_changed();
+        }
+    }
+    private void PerviousPage()
+    {
+        selectedPage = null;
+        if (pageindex > 0)
+        {
+            pageindex--;
+            page_changed();
+        }
+    }
+    void input_change(ChangeEventArgs agrs)
+    {
+
+        try
+        {
+            pageindex = int.Parse(agrs.Value.ToString()) - 1;
+            if (pageindex < 0)
+            {
+                pageindex = 0;
+            }
+            if (pageindex > selectedpart.Count - 1)
+            {
+                pageindex = selectedpart.Count - 1;
+            }
+            StateHasChanged();
+            page_changed();
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+      
+    }
+    void select_title(Model.Title _tile)
+    {
+        selectedPage = null;
+        pageindex = selectedpart.IndexOf(selectedpart.Where(p => p.Id == _tile.Id).First());
+        page_changed();
+    }
+    void page_changed()
+    {
+
+        try
+        {
+            selectedPage = null;
+            checkbookmarked();
+            format_Text();
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+      
+    }
+    bool bookmarked = false;
+    void checkbookmarked()
+    {
+
+        try
+        {
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                var res = db.Users.Where(u => u.Bookmark != null).Select(x => x.Bookmark).ToList();
+                var i = selectedpart[pageindex].Rowid;
+                bookmarked = res.Contains(selectedpart[pageindex].Rowid);
+            }
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+       
+    }
+    void removebookmark()
+    {
+        try
+        {
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                db.Database.ExecuteSql($"update [user] set bookmark=0 where bookmark = ({selectedpart[pageindex].Rowid})");
+                db.SaveChanges();
+            }
+            bookmarked = false;
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+     
+    }
+    void addbookmark()
+    {
+        try
+        {
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+
+                int rowid = db.Users.Where(x => x.Bookmark == 0).Select(x => x.Rowid).FirstOrDefault();
+                if (rowid != 0)
+                {
+                    db.Database.ExecuteSql($"update [user] set bookmark={selectedpart[pageindex].Rowid} where rowid = {rowid}");
+
+                }
+                else
+                {
+                    db.Database.ExecuteSql($"insert into [user] (bookmark) values ({selectedpart[pageindex].Rowid})");
+
+                }
+                db.SaveChanges();
+            }
+            bookmarked = true;
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+      
+    }
+    string ErrorMessage { get; set; }
+    bool show_danger_alert = false;
+    async void denger_alert(Exception e)
+    {
+        ErrorMessage = e.Message;
+        show_danger_alert = !show_danger_alert;
+        await Task.Delay(5500);
+        show_danger_alert = !show_danger_alert;
+        await InvokeAsync(() =>
+          {
+
+              StateHasChanged();
+          });
+    }
+    @inject IJSRuntime JSRuntime
+    void openBookOnNewTab()
+    {
+        var url = $"/Book/{selectedpart[pageindex].Rowid}";
+        InvokeAsync(() => JSRuntime.InvokeVoidAsync("open", url, "_blank"));
+        // NavigationManager.NavigateTo("/Book", true);
+        //var json = JsonSerializer.Serialize(selectedBook);
+        //var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
+        // var url = "/Book";
+        //  await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+        //await JSRuntime.InvokeVoidAsync("open", new object[2] { url, "_blank" }  );
+    }
+}

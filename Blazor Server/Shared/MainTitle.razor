@@ -1,0 +1,50 @@
+﻿<style>
+	.top-row{
+        background-color: #f1f1f1;
+       /* background-color: #00000017;*/
+        border-bottom: 1px solid #d6d5d5;
+        justify-content: space-between;
+        height: 3.5rem;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+    
+    
+	}
+    .custom-background{
+        --s: 23px; /* the size */
+        --c: #f1f1f1;
+        --_s: calc(2*var(--s)) calc(2*var(--s));
+        --_g: 35.36% 35.36% at;
+        --_c: #0000 66%,#1d764d 68% 70%,#0000 72%;
+        background: radial-gradient(var(--_g) 100% 25%,var(--_c)) var(--s) var(--s)/var(--_s),
+        radial-gradient(var(--_g) 0 75%,  var(--_c)) var(--s) var(--s)/var(--_s),
+        radial-gradient(var(--_g) 100% 25%,var(--_c)) 0 0/var(--_s),
+        radial-gradient(var(--_g) 0 75%,var(--_c)) 0 0/var(--_s),
+        repeating-conic-gradient(var(--c) 0 25%,#0000 0 50%) 0 0/var(--_s),
+        radial-gradient(var(--_c)) 0 calc(var(--s)/2)/var(--s) var(--s) var(--c);
+    }
+</style>
+<div class="main-title">
+    <div class="top-row px-4 custom-background" style="display:flex;flex-direction:row;justify-content:space-between;
+        margin-top:10px;
+        border-radius: 10px;
+        border-bottom:none;
+        padding:0px !important;
+        display:block;
+        ">
+
+        <div style="background-image:linear-gradient(to left,#f1f1f1,#f1f1f1,#f1f1f14f,transparent);width:100%;height:100%;padding:6px 20px;border-radius: 10px;margin-left:200px">
+            <h1 style="margin:0; color:#1d764d;font-family:kitab-regular;font-size:200%;font-weight:bolder;">@title</h1>
+    </div>
+
+       
+
+    </div>
+</div>
+
+@code {
+	[Parameter]
+	public string? title { get; set; }
+
+}

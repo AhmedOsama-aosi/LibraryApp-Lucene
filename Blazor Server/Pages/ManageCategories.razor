@@ -1,0 +1,534 @@
+﻿@page "/ManageCategories"
+@using Microsoft.EntityFrameworkCore;
+<MainTitle title="ادارة الاقسام"></MainTitle>
+
+
+@if (show_alert)
+{
+	<div class="alert alert-success custom-alert alert-dismissible ">
+		<p style="margin:auto; align-self:center;">تم الحفظ</p>
+
+	</div>
+}
+@if (show_danger_alert)
+{
+	<ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+<style>
+
+
+
+	
+</style>
+<div class="page-body">
+<p style="margin:0;font-weight:600">القسم:</p>
+<div class="custom-row "style="justify-content:space-between;">
+
+		<div class="custom-row"style="width:80%;">
+		
+			@if (local_cat_list != null && selected_cat == null)
+			{
+				input_cat = "قم بتحديد قسم";
+			}
+			else if (local_cat_list != null && selected_cat != null)
+			{
+				input_cat = selected_cat.Name;
+			}
+			else if (local_cat_list != null && local_cat_list.Count < 1)
+			{
+				input_cat = "لا يوجد اقسام";
+			}
+			else
+			{
+				input_cat = "جاري عرض الاقسام...";
+			}
+			<CustomAutoComplete input="@input_cat" input_changed="chenge_category_input" item_clicked="chenge_category_selection" Values="local_cat_list"></CustomAutoComplete>
+
+			@if (selected_cat!=null)
+			{
+				<button class="btn btn-success item-margin" style="" @onclick="()=>show_hide(ref show_edit_cat)">تعديل</button>
+
+				<button class="btn btn-danger item-margin" style="" @onclick="remove_category">حذف</button>
+
+			}
+			
+		</div>
+	
+		<div>
+			<button class="btn btn-success item-margin" style="" @onclick="()=>show_hide(ref show_add_category)">اضافة</button>
+		</div>
+
+</div>
+	
+@if (show_edit_cat && selected_cat != null)
+{
+	string cat_name = selected_cat.Name;
+
+	<div class="card" style="margin:10px 20px; padding:10px">
+		<p style="margin:0;font-weight:600">تعديل اسم القسم :</p>
+		<div class="custom-row">
+			<span class="item-margin item-center">من</span>
+
+			<input class="custom-select item-margin" disabled @bind=cat_name />
+			<span class="item-margin item-center">الي</span>
+				<input class="custom-select item-margin" @bind=new_category_name />
+			
+			<button class="btn btn-success item-margin" style="" @onclick="edit_category">حفظ</button>
+		</div>
+
+	</div>
+
+	
+}
+	@if (show_add_category )
+	{
+
+		<div class="card" style="margin:10px 20px; padding:10px">
+			<p style="margin:0;font-weight:600">اضافة قسم:</p>
+
+			<div class="custom-row ">
+				<span class="item-margin item-center">الاسم</span>
+
+				<input class="custom-select item-margin" @bind=new_category_name />
+
+				<button class="btn btn-success item-margin" style="" @onclick="add_category">حفظ</button>
+			</div>
+		</div>
+
+
+
+
+	}
+	<br />
+	<br />
+	<div style="display:flex;flex-direction:row;flex:1;">
+
+		@if (local_books_list != null)
+		{
+			<div style="display:flex;flex-direction:column;flex:2; padding-right: 20px;">
+				<h3>الكتب</h3>
+				<div class="custom-row" style="justify-content:space-between">
+					<p class="item-margin">عدد الكتب: @local_books_list.Count</p>
+					
+
+				</div>
+
+				<div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="">
+					<table class="table table-hover ">
+						<thead>
+							<tr>
+								<th>تحديد الكتاب</th>
+								<th>رقم الكتاب</th>
+								<th>اسم الكتاب</th>
+
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (Model._0bok book in local_books_list)
+							{
+								@*var rowClass = book == selectedBook ? "selected" : "";*@
+								<tr style="cursor:default;">
+									<td><input type="checkbox" checked="@(selected_books_list!.Any(x=>x.Bkid==book.Bkid)?true:false)" @onchange='(x)=>chenge_checkbox(x,book)' /></td>
+									<td>@book.Bkid</td>
+									<td style="width:82%;">@book.Bk</td>
+
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+		}
+		@if (selected_books_list != null && selected_books_list.Count!=0)
+		{
+			<div style="display:flex;flex-direction:column;flex:2;border-right: solid #1d764d; padding-right: 20px;">
+				<h3>الكتب المحددة</h3>
+				<div class="custom-row" style="justify-content:space-between">
+					<p class="item-margin">عدد الكتب: @selected_books_list.Count</p>
+					<div>
+						<button class="btn btn-success " style="" @onclick="()=>show_hide(ref show_move_cat)">نقل</button>
+						<button class="btn btn-danger " style="" @onclick="remove_books">حذف</button>
+					</div>
+
+				</div>
+				@if (show_move_cat && selected_cat != null)
+				{
+					string cat_name = selected_cat.Name;
+
+					<div class="card" style="margin:10px 20px; padding:10px">
+						<p style="margin:0;font-weight:600">نقل من القسم :</p>
+						<div class="custom-row">
+							
+							<span class="item-margin item-center">الي</span>
+							<select @bind=selected_cat_id_to_move class="custom-select item-margin">
+								@if (local_cat_list != null)
+								{
+									foreach (Model._0cat item in local_cat_list)
+									{
+										<option value=@item.Id>@item.Name</option>
+									}
+								}
+								else
+								{
+									<option>لا يوجد اقسام</option>
+								}
+							</select>
+							<button class="btn btn-success item-margin" style="" @onclick="move_to_category">حفظ</button>
+						</div>
+
+					</div>
+
+
+				}
+				<div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="">
+					<table class="table table-hover ">
+						<thead>
+							<tr>
+								<th>تحديد الكتاب</th>
+								<th>رقم الكتاب</th>
+								<th>اسم الكتاب</th>
+
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (Model._0bok book in selected_books_list)
+							{
+								@*var rowClass = book == selectedBook ? "selected" : "";*@
+								<tr style="cursor:default;">
+									<td><input type="checkbox" checked="@(true)" @onchange='(x)=>chenge_checkbox(x,book)' /></td>
+									<td>@book.Bkid</td>
+									<td style="width:82%;">@book.Bk</td>
+
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+		}
+	</div>
+
+</div>
+@code {
+	string new_category_name = "";
+	int selected_cat_id { get; set; }
+	int selected_cat_id_to_move { get; set; }
+	Model._0cat? selected_cat { get; set; }
+	string input_cat { get; set; }
+	List<Model._0cat>? local_cat_list { get; set; }
+	List<Model._0cat>? result_cat_list { get; set; }
+	List<Model._0bok>? local_books_list { get; set; }
+	List<Model._0bok>? selected_books_list = new List<Model._0bok>();
+
+	protected override async void OnAfterRender(bool firstRender)
+	{
+
+		base.OnAfterRender(firstRender);
+		if (firstRender)
+		{
+			await Task.Run(get_Category);
+
+		}
+
+	}
+	string ErrorMessage { get; set; }
+	void get_Category()
+	{
+		try
+		{
+
+			using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+			{
+				local_cat_list = db._0cats.ToList();
+				result_cat_list = new List<Model._0cat>();
+				result_cat_list.AddRange(local_cat_list);
+			}
+			InvokeAsync(() => { StateHasChanged(); });
+		}
+		catch (Exception e)
+		{
+
+			denger_alert(e);
+		}
+
+	}
+	async void edit_category()
+	{
+		try
+		{
+			//	selected_book.Cat = selected_cat_id;
+			using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+			{
+				selected_cat.Name = new_category_name;
+				db._0cats.Attach(selected_cat);
+				db.Entry(selected_cat).State = EntityState.Modified;
+				db.SaveChanges();
+
+			}
+			alert();
+			show_hide(ref show_edit_cat);
+			new_category_name = "";
+			selected_cat = null;
+			local_books_list = null;
+			local_cat_list = null;
+			StateHasChanged();
+			await Task.Delay(1000);
+			get_Category();
+		}
+		catch (Exception e)
+		{
+
+			denger_alert(e);
+		}
+
+	}
+
+	async void add_category()
+	{
+		//	selected_book.Cat = selected_cat_id;
+		try
+		{
+			using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+			{
+				int max_id = db._0cats.Max(c => c.Id);
+				Model._0cat new_cat = new Model._0cat();
+				new_cat.Id = max_id+1;
+				new_cat.Name = new_category_name;
+
+				db._0cats.Add(new_cat);
+
+				db.SaveChanges();
+
+			}
+			new_category_name = "";
+			alert();
+			show_hide(ref show_add_category);
+			await Task.Delay(1000);
+			get_Category();
+		}
+		catch (Exception e)
+		{
+
+			denger_alert(e);
+		}
+
+	}
+	async void remove_category()
+	{
+		try
+		{
+			using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+			{
+				foreach (var _book in local_books_list)
+				{
+					db.Database.ExecuteSql($"delete from title where bookid={_book.Bkid}");
+					db.Database.ExecuteSql($"delete from book where bookid={_book.Bkid}");
+					db.SaveChanges();
+				}
+				db.Database.ExecuteSql($"delete from [0bok] where cat={selected_cat.Id}");
+				db._0cats.Remove(selected_cat);
+				db.SaveChanges();
+
+			}
+			alert();
+			selected_cat = null;
+			local_books_list = null;
+			selected_books_list.Clear();
+			await Task.Delay(1000);
+			get_Category();
+		}
+		catch (Exception e)
+		{
+
+			denger_alert(e);
+		}
+	}
+
+	void move_to_category()
+	{
+		//	selected_book.Cat = selected_cat_id;
+		try
+		{
+			foreach (var _book in selected_books_list)
+			{
+				_book.Cat = selected_cat_id_to_move;
+			}
+			using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+			{
+				db._0boks.AttachRange(selected_books_list);
+				foreach (var _book in selected_books_list)
+				{
+					db.Entry(_book).State = EntityState.Modified;
+				}
+
+				db.SaveChanges();
+
+
+			}
+			selected_books_list.Clear();
+			show_hide(ref show_move_cat);
+			get_Books();
+			alert();
+			//await Task.Delay(1000);
+
+		}
+		catch (Exception e)
+		{
+
+			denger_alert(e);
+		}
+
+	}
+	void chenge_category_input(ChangeEventArgs input)
+	{
+		try
+		{			
+			if (input != null)
+			{
+
+				local_cat_list = result_cat_list.Where(c => c.Name.Contains(input.Value.ToString())).ToList();
+
+			}
+			else
+			{
+				local_cat_list = result_cat_list;
+			}
+		}
+		catch (Exception e)
+		{
+			denger_alert(e);
+		}
+		
+
+	}
+	void chenge_category_selection(int id)
+	{
+		try
+		{
+			selected_cat_id = id;
+			selected_cat = local_cat_list.Where(x => x.Id == selected_cat_id).First();
+			get_Books();
+		}
+		catch (Exception e)
+		{
+			denger_alert(e);
+		}
+
+
+	}
+	void get_Books()
+	{
+		try
+		{
+			using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+			{
+
+				local_books_list = db._0boks.Where(b => b.Cat == selected_cat_id).ToList();
+			}
+		}
+		catch (Exception e)
+		{
+
+			denger_alert(e);
+		}
+
+	}
+
+	async void remove_books()
+	{
+		try
+		{
+			using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+			{
+				foreach (var _book in selected_books_list)
+				{
+					db.Database.ExecuteSql($"delete from title where bookid={_book.Bkid}");
+					db.Database.ExecuteSql($"delete from book where bookid={_book.Bkid}");
+					db.Database.ExecuteSql($"delete from [0bok] where bkid={_book.Bkid}");
+					db.SaveChanges();
+				}
+
+
+
+
+			}
+			selected_books_list.Clear();
+			alert();
+
+			await Task.Delay(1000);
+			get_Books();
+		}
+		catch (Exception e)
+		{
+
+			denger_alert(e);
+		}
+	}
+
+	bool show_edit_cat = false;
+	bool show_add_category = false;
+	bool show_move_cat = false;
+	bool show_alert = false;
+	bool show_danger_alert = false;
+	void show_hide(ref bool value)
+	{
+		value = !value;
+	}
+	async void alert()
+	{
+		show_alert = !show_alert;
+		await Task.Delay(3500);
+		show_alert = !show_alert;
+		StateHasChanged();
+	}
+	async void denger_alert(Exception e)
+	{
+		ErrorMessage = e.Message;
+		show_danger_alert = !show_danger_alert;
+		await Task.Delay(5500);
+		show_danger_alert = !show_danger_alert;
+		await InvokeAsync(() =>
+				{
+
+					StateHasChanged();
+				});
+	}
+	 async void chenge_checkbox(ChangeEventArgs args,Model._0bok b)
+	{
+
+		try
+		{
+			if (args != null)
+			{
+				if ((bool)args.Value)
+				{
+					selected_books_list.Add(b);
+				}
+				else
+				{
+					selected_books_list.Remove(selected_books_list.Where(bok => bok.Bkid == b.Bkid).First());
+					var _list = new List<Model._0bok>();
+					_list.AddRange(selected_books_list);
+					selected_books_list.Clear();
+					await Task.Delay(1);
+					selected_books_list.AddRange(_list);
+					StateHasChanged();
+				}
+
+			}
+		}
+		catch (Exception e)
+		{
+			denger_alert(e);
+		}
+		
+
+	}
+
+
+	
+}

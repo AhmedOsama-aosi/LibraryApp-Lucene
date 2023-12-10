@@ -1,0 +1,425 @@
+﻿@page "/Setting"
+<MainTitle title="الاعدادات"></MainTitle>
+
+
+
+
+@using System.Text.RegularExpressions;
+
+
+
+
+<div class="page-body">
+   @*   <div class="custom-row" style="justify-content:space-between !important;align-items: center;">
+    <div>
+    <span class="item-margin item-center">من المكتبة الشاملة</span>
+    <label class="btn btn-success item-margin" style=" cursor: pointer;">
+    <InputFile style="display:none" multiple OnChange="HandleFileSelected"></InputFile>
+    قراءة ملف
+
+    </label>
+    </div>
+
+    </div>
+    <div class="custom-row" style="justify-content:space-between !important;align-items: center;">
+
+        @if (selected_book != null && selected_book.name != "" && selected_book.name != null)
+        {
+            <label style="font-size:1.2rem"> : @selected_book.name</label>
+            <button class="btn btn-success item-margin" style="" @onclick="save">حفظ</button>
+        }
+
+        <button class="btn btn-success item-margin" style="" @onclick="openprogram">فتح</button>
+        <button class="btn btn-success item-margin" style="" @onclick="prevoius_book">السابق</button>
+        <input class="custom-select item-margin" style="width:10vw !important; text-align:center" value="@(book_index+1)" @onchange=book_input_change />
+        <button class="btn btn-success item-margin" style="" @onclick="next_book">التالي</button>
+    </div>
+
+    <div style="width:100%;height:8vh;font-size:120%;background-color: lightgoldenrodyellow;border-radius:8px;overflow:auto;padding:10px">
+        @title_text
+    </div>
+    <div class="custom-row">
+        <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="flex:5;max-height:62vh;background-color: lightgoldenrodyellow;border-radius:8px;padding:10px;">
+            <table class="table table-hover" style="">
+                <thead class="">
+                    <tr>
+                        <th scope="col">العناوين</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (selected_book != null && selected_book.titles != null)
+                    {
+                        @selected_book.titles.Count
+                        @foreach (var item in selected_book.titles)
+                        {
+                            <tr style="cursor:pointer;">
+                                <td>@item.name</td>
+                            </tr>
+                        }
+
+
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div style="width:100%;height:62vh;font-size:100%;background-color: lightgoldenrodyellow;border-radius:8px;overflow:auto;padding:10px;flex:20;">
+            @((MarkupString)converted_text)
+        </div>
+    </div>
+
+    <div class="custom-row" style="justify-content:space-between !important;">
+        <button class="btn btn-success item-margin" style="" @onclick="prevoius_page">السابق</button>
+        <input class="custom-select item-margin" style="width:10vw !important; text-align:center" value="@(page_index+1)" @onchange=input_change />
+        <button class="btn btn-success item-margin" style="" @onclick="next_page">التالي</button>
+    </div>
+
+
+*@
+</div>
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        //if (firstRender)
+        //{
+        //    int max = 0;
+        //    using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+        //    {
+        //        max = db._0cats.Max(b => b.Id);
+        //    }
+        //}
+    }
+
+    string pip = "";
+    string main_text = "";
+    string title_text = "";
+    string converted_text = "";
+
+    int page_index;
+    int book_index;
+    CBook selected_book = new CBook();
+    class page
+    {
+        public int number { get; set; }
+        public int id { get; set; }
+        public string? title { get; set; }
+        public string? body { get; set; }
+    }
+    class Title
+    {
+        public string? name { get; set; }
+        public int id { get; set; }
+
+
+    }
+    class CBook
+    {
+        public List<page>? pages { get; set; }
+        public List<Title>? titles { get; set; }
+        public string name { get; set; }
+        public int id { get; set; }
+
+
+
+    }
+    List<Title> titles = new List<Title>();
+    void next_book()
+    {
+        if (book_index < list_books.Count - 1)
+        {
+            book_index++;
+            change_book(book_index);
+        }
+
+    }
+    void prevoius_book()
+    {
+        if (book_index > 0)
+        {
+            book_index--;
+            change_book(book_index);
+        }
+
+    }
+    void next_page()
+    {
+        if (page_index < selected_book.pages.Count - 1)
+        {
+            page_index++;
+            change_page(page_index);
+        }
+
+    }
+    void prevoius_page()
+    {
+        if (page_index > 0)
+        {
+            page_index--;
+            change_page(page_index);
+        }
+
+    }
+    void input_change(ChangeEventArgs agrs)
+    {
+        page_index = int.Parse(agrs.Value.ToString()) - 1;
+        change_page(page_index);
+    }
+    void book_input_change(ChangeEventArgs agrs)
+    {
+        book_index = int.Parse(agrs.Value.ToString()) - 1;
+        change_book(book_index);
+    }
+    void change_page(int _page_index)
+    {
+        title_text = selected_book.pages[_page_index].title;
+        converted_text = selected_book.pages[_page_index].body;
+
+        converted_text = converted_text.Replace("\n", "<br>");
+        converted_text = Regex.Replace(converted_text, @"([^\u0621-\u064A\s(<br>)\\n\d\w])", @"<span style='color:red;'>$&</span>");
+    }
+    void change_book(int _book_index)
+    {
+        selected_book = list_books[_book_index];
+        page_index = 0;
+        change_page(page_index);
+    }
+    string htmlString = "";
+    List<string> list_htmlString = new List<string>();
+    //List<string> title_matchs = new List<string>();
+
+    void convert()
+    {
+        CBook book = new CBook();
+        List<Title> book_titles = new List<Title>();
+        List<page> pages = new List<page>();
+        list_htmlString.RemoveAt(0);
+        foreach (var item in list_htmlString)
+        {
+            string[] sp = item.Split("</div>");
+            page _page = new page();
+            _page.title = sp[0];
+            _page.body = sp[1].Replace("\n", "");
+            pages.Add(_page);
+
+        }
+        list_htmlString.Clear();
+        int id = 0;
+        foreach (var item in pages)
+        {
+            id = id + 1;
+            item.id = id;
+            item.title = item.title.Replace("<div class='PageText'>", "");
+            item.title = Regex.Replace(item.title, @"(<hr[ ]*\/>)", "");
+            item.title = Regex.Replace(item.title, @"[\r]", "");
+            item.title = Regex.Replace(item.title, @"[\n]", "");
+            item.title = item.title.Replace("</span>", " ");
+            item.title = item.title.Replace("<div class='PageHead'><span class='PartName'>", "");
+            item.title = Regex.Replace(item.title, @"(<span[ ]*class='PageNumber'>)", " ");
+            ///extract page number from title
+            var pagenum = Regex.Match(item.title, @"[\u0660-\u0669]+\)").Value;
+            pagenum = Regex.Replace(pagenum, @"[^\u0660-\u0669]*", "");
+            if (pagenum != "")
+            {
+                item.number = int.Parse(ToEnglishNumbers(pagenum));
+            }
+            else
+            {
+                item.number = 0;
+            }
+            ///
+            string body = item.body;
+            body = Regex.Replace(body, @"(<span[ ]*class=""symbol"">[\W]*<\/span>)", " ");
+            body = Regex.Replace(body, @"(<\/?font[^>]*>)", " ");
+            ///extract symobols form span tag
+            var symobls = Regex.Matches(body, @"(<span[ ]*class=""symbol"">[^<]*<\/span>)").Select(i => i.Value).ToList();
+            for (int i = 0; i < symobls.Count; i++)
+            {
+                var symbol = Regex.Replace(symobls[i], @"<\/?[^>]*>", "");
+                body = body.Replace(symobls[i], symbol);
+            }
+            ///
+            body = Regex.Replace(body, @"(</span>[ ]*</span>)", "</span>");
+            body = Regex.Replace(body, @"(<span[ ]*class=""symbol"">)", " ");
+
+
+            ///extract titles form page
+            var tits = Regex.Matches(body, @"(<span[^=]*=(""|')title(""|')[^>]*>.*?<\/span>)").Select(i => i.Value).ToList();
+            for (int i = 0; i < tits.Count; i++)
+            {
+                tits[i] = Regex.Replace(tits[i], @"<\/?[^>]*>", "");
+            }
+            for (int i = 0; i < tits.Count; i++)
+            {
+                Title _title = new Title();
+                _title.name = tits[i];
+                _title.id = item.id;
+                book_titles.Add(_title);
+
+            }
+
+            ///
+            item.body = Regex.Replace(item.body, @"[\r]", "");
+            item.body = Regex.Replace(item.body, @"[\n]", "");
+            item.body = item.body.Replace("<hr/>", "\n");
+            item.body = item.body.Replace("</p>", "\n");
+            item.body = item.body.Replace("<hr width='95' align='right'>", "\n______________________\n");
+            item.body = Regex.Replace(item.body, @"<\/?[^>]*>", "");
+            item.body = Regex.Replace(item.body, @"[ ]{2,}", " ");
+
+        }
+
+        book.pages = pages;
+        book.titles = book_titles;
+        book.name = file_name;
+        add_to_list(book);
+        //List<Model.Book> save_pages_list= new List<Model.Book>();
+        //foreach (var item in pages)
+        //{
+        //    Model.Book pag = new Model.Book();
+
+        //    pag.Bookid = mbook.Bkid;
+        //    pag.Id = 1;
+        //    pag.Page = 1;
+        //    pag.Part = 1;
+        //    pag.Nass = "";
+        //    save_pages_list.Add(pag);
+        //}
+
+
+
+    }
+    string file_name = "";
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+
+        page_index = 0;
+        var list_files = e.GetMultipleFiles(100000);
+        //  var dfd = Directory.GetDirectories("");
+        if (list_files != null)
+        {
+            foreach (var file in list_files)
+            {
+                using (var reader = new StreamReader(file.OpenReadStream(file.Size)))
+                {
+                    htmlString = await reader.ReadToEndAsync();
+                }
+                file_name = file.Name.Replace(".htm", "");
+                add_book();
+
+                htmlString = Regex.Replace(htmlString, @"(<head>[\W\w]+(<\/head>*))", "");
+                htmlString = Regex.Replace(htmlString, @"(<!DOCTYPE[^>]*>)", "");
+                list_htmlString.Clear();
+                list_htmlString = htmlString.Split("<div class='PageText'>").ToList();
+                htmlString = "";
+                list_htmlString.Remove("");
+                list_htmlString.RemoveAt(0);
+                convert();
+            }
+
+        }
+
+        selected_book = list_books[0];
+        change_page(0);
+    }
+    List<CBook> list_books = new List<CBook>();
+    void add_to_list(CBook book)
+    {
+        list_books.Add(book);
+    }
+    Model._0bok mbook;
+    void add_book()
+    {
+        int max = 0;
+        using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+        {
+            max = db._0boks.Max(b => b.Bkid);
+        }
+        mbook = new Model._0bok();
+        mbook.Bkid = max + 1;
+        mbook.Cat = 16;
+        mbook.Bk = file_name;
+        //using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+        //{
+        //    db._0boks.Add(book);
+        //    db.SaveChanges();
+
+        //}
+    }
+
+
+    void save()
+    {
+
+
+        for (int i = 0; i < list_books.Count; i++)
+        {
+            List<Model.Book> list_pages = new List<Model.Book>();
+            List<Model.Title> list_titles = new List<Model.Title>();
+            int max = 0;
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                max = db._0boks.Max(b => b.Bkid);
+                mbook = new Model._0bok();
+                mbook.Bkid = max + 1;
+                mbook.Cat = 40;
+                mbook.Bk = list_books[i].name;
+                db._0boks.Add(mbook);
+                db.SaveChanges();
+            }
+
+
+            for (int p = 0; p < list_books[i].pages.Count; p++)
+            {
+                Model.Book mpage = new Model.Book();
+                mpage.Bookid = mbook.Bkid;
+                mpage.Page = list_books[i].pages[p].number;
+                mpage.Part = 1;
+                mpage.Id = list_books[i].pages[p].id;
+                mpage.Nass = list_books[i].pages[p].body;
+                list_pages.Add(mpage);
+            }
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                db.Books.AddRange(list_pages);
+                db.SaveChanges();
+            }
+            for (int t = 0; t < list_books[i].titles.Count; t++)
+            {
+                Model.Title mtitle = new Model.Title();
+                mtitle.Bookid = mbook.Bkid;
+                mtitle.Id = list_books[i].titles[t].id;
+                mtitle.Tit = list_books[i].titles[t].name;
+
+                list_titles.Add(mtitle);
+            }
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                db.Titles.AddRange(list_titles);
+                db.SaveChanges();
+            }
+
+        }
+
+        list_books.Clear();
+    }
+
+    private static string ToEnglishNumbers(string input)
+    {
+        System.Text.StringBuilder sbEnglishNumbers = new System.Text.StringBuilder(string.Empty);
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (char.IsDigit(input[i]))
+            {
+                sbEnglishNumbers.Append(char.GetNumericValue(input, i));
+            }
+            else
+            {
+                sbEnglishNumbers.Append(input[i].ToString());
+            }
+        }
+
+        return sbEnglishNumbers.ToString();
+    }
+}

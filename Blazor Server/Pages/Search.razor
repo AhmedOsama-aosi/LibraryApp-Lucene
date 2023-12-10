@@ -1,0 +1,444 @@
+﻿@page "/Search"
+@using Microsoft.EntityFrameworkCore;
+@using System.Diagnostics;
+@using System.Runtime.CompilerServices;
+@using System.Text.RegularExpressions;
+@using System.Globalization;
+
+@layout MainLayout 
+<style>
+    .my-custom-scrollbar {
+        position: relative;
+        height: 80vh;
+        overflow: auto;
+    }
+
+    .table-wrapper-scroll-y {
+        display: block;
+    }
+    .custom_button_style{
+       
+        color: #fff;
+        background-color: #1d764d;
+        border-color: #1d764d;
+/*        box-shadow: 0 0 0 0.25rem #1987545c;*/    }
+
+    .selected {
+        background-color: lightgray;
+    }
+ 
+</style>
+
+<MainTitle title="بحث في جميع كتب المكتبة"></MainTitle>
+
+@if (show_danger_alert)
+
+{
+    <ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+
+  
+}
+
+<div class="page-body">
+    <div class="custom-row">
+        <input type="text"  class="custom-select item-margin" @bind-value=@value style="width:40%" />
+        <button class="btn btn-success item-margin" style="" @onclick="start_search">بحث</button>
+    </div>
+
+
+    <div class="custom-row" style="justify-content:space-between;">
+        <label class="item-magrin item-center">المدة: @elapsedTime</label>
+        @if (selectedbook != null)
+        {
+            <button class="btn btn-success item-margin" style="" @onclick="()=>gotobook(selectedbook.Rowid)">فتح الكتاب</button>
+        }
+       
+    </div>
+    
+    @*<p>المدة: @timeElapsed</p>*@
+ 
+
+    @if (booklist != null)
+    {
+
+        if (selectedbook != null)
+        {
+           
+            <div style="height:40vh;overflow:auto;">
+                <p style="font-weight:600;font-size:large">@((MarkupString)text_with_highlight_result(selectedbook.Nass))</p>
+            </div>
+
+        }
+        <p role="status">نتائج البحث: @searched</p>
+        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+            <table class="table table-hover table-bordered">
+                <thead >
+                    <tr >
+                        <th scope="col">التسلسل</th>
+                        <th scope="col">القسم</th>
+                        <th scope="col">الكتاب</th>
+                        <th scope="col">النص</th>
+                        <th scope="col">الجزء</th>
+                        <th scope="col">الصفحة</th>
+
+                    </tr>
+                </thead>
+               
+                <tbody >
+                        @{
+                            index = 1;
+                        }
+                        @foreach (Model.Book item in booklist)
+                        {
+                            var rowClass = item == selectedbook ? "selected" : "";
+                        <tr @onclick="()=>View(item)" class="@rowClass" style="cursor:pointer;">
+
+                            <td>@(((pagenumber - 1) * 10) + index++)</td>
+                            <td>@item.BookNavigation.CatNavigation.Name</td>
+                            <td>@item.BookNavigation.Bk</td>
+                            <td width="60%">
+                                <div style="height:25px;overflow:clip;">@((MarkupString)item.Nass)</div>
+                            </td>
+                            <td>@item.Part</td>
+                            <td>@item.Page</td>
+                        </tr>
+                        }
+
+
+                </tbody>
+               
+               
+            </table>
+        </div>
+        <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin:10px">
+            <button class="btn btn-light" @onclick="previous">السابق</button>
+            <p style="height:fit-content;margin:0;">@pagenumber من @pages</p>
+            <button class="btn btn-light" @onclick="next">التالي</button>
+
+
+        </div>
+    }
+    else
+    {
+        if (_stopwatch.IsRunning)
+        {
+            <p>جاري البحث ...</p>
+        }
+
+    }
+
+</div>
+
+
+@code {
+    Model.Book []? booklist { get; set; }
+    IQueryable<Model.Book>? result { get; set; }
+    string value { get; set; }
+    Model.Book? selectedbook { get; set; }
+    double searched { get; set; }
+    string ErrorMessage { get; set; }
+    int skip = 0;
+    double pages = 0;
+    int pagenumber = 0;
+    int index = 1;
+
+    void next()
+    {
+        if (pagenumber<pages)
+        {
+            skip += 10;
+            pagenumber += 1;
+            index=1;
+            change_list();
+        }
+    }
+    void previous()
+    {
+        if (skip >= 10)
+        {
+            skip -= 10;
+            pagenumber -= 1;
+            index = 1;
+            change_list();
+        }
+    }
+    int last_skip = 0;
+    void change_list()
+    {
+        try
+        {
+            // booklist = result.Skip(skip).Take(10).ToArray();
+            var csfd = result.Skip(skip).Take(10);
+            booklist = csfd.Include(b => b.BookNavigation).ThenInclude(b => b.CatNavigation).Where(b => b.BookNavigation.Cat != 16).ToArray();
+            Stop();
+        }
+        catch (Exception e)
+        {
+
+            denger_alert(e);
+        }
+
+        //Stop();
+
+    }
+
+    IQueryable<int> resultr { get; set; }
+    Model.LibraryDbContext db;
+    string save_search_value = "";
+    int timeElapsed = 0;
+    private  async void start_search()
+    {
+        try
+        {
+            save_search_value = value;
+            last_skip = 0;
+            //        GC.SuppressFinalize(this);
+            if (db != null)
+            {
+                db.Dispose();
+            }
+            db = new Model.LibraryDbContext();
+
+
+            booklist = null;
+            result = null;
+            searched = 0;
+            skip = 0;
+            Start();
+            var sre = Regex.Replace(value, "([\u0621-\u064A\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED\u08D4-\u08E1\u08E3-\u08FF\uFC5E-\uFC63\uFE70-\uFE7F\\s]+)", "\"$&\""); ;
+            sre = sre.Replace("-", " or ");
+            sre = sre.Replace("+", " and ");
+            string s = $@"""{value}""";
+
+            await Task.Run(() => SearchInDB(sre));
+        }
+        catch (Exception e)
+        {
+
+            denger_alert(e);
+        }
+
+
+    }
+    void SearchInDB(string s)
+    {
+        try
+        {
+            result = db.Books.FromSqlRaw($"select bb.* from book as bb inner join containstable(book,nass,'formsof(inflectional,{s})') as ct on bb.rowid=ct.[key] order by ct.Rank desc OFFSET 0 ROWS");
+            //  result = db.Books.Where(x => EF.Functions.Contains(x.Nass, s)).Include(b => b.BookNavigation).ThenInclude(b => b.CatNavigation).Where(b => b.BookNavigation.Cat != 16);
+            selectedbook = null;
+            index = 1;
+            searched = result.Count();
+            double v = searched / 10;
+            pages = Math.Ceiling(v);
+            pagenumber = 1;
+            change_list();
+        }
+        catch (Exception e)
+        {
+
+            denger_alert(e);
+
+        }
+
+
+    }
+    private void View(Model.Book _book)
+    {
+        selectedbook = _book;
+
+    }
+
+    string text_with_highlight_result(string _text)
+    {
+        try
+        {
+            //الحقيقة والشريعة
+            //تنصرون بضعفائكم
+
+            //string s = value.Replace("ال"," ");
+            //s = s.Replace("و ", " ");
+            var sd = save_search_value.Replace("-", " ");
+            sd = sd.Replace("+", " ");
+            List<string> sl = sd.Split(" ").ToList();
+            sl.RemoveAll(x=>x==""||x==" ");
+
+
+            //sl = sl.Where(x => x != "").ToList();
+            string res = _text;
+            List<string> lt = _text.Split(" ").ToList();
+            List<string> match_words = new List<string>();
+            //for (int i = 0; i < sl.Count; i++)
+            //{
+            //    sl[i] = new string(sl[i].Distinct().ToArray());
+            //}
+
+            // var r= Regex.Match(_text, value);
+
+            foreach (string text_item in lt)
+            {
+                string _text_item = Regex.Replace(text_item, "([\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED\u08D4-\u08E1\u08E3-\u08FF\uFC5E-\uFC63\uFE70-\uFE7F])", "");
+
+                foreach (string search_item in sl)
+                {
+                    int word_lenthg = search_item.Length;
+
+                    int count = 0;
+                    string _search_item = Regex.Replace(search_item, "([\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED\u08D4-\u08E1\u08E3-\u08FF\uFC5E-\uFC63\uFE70-\uFE7F])", "");
+                  //  string _text_item = text_item;
+                  //  List<Char> dis = _text_item.ToList();
+
+                    if (_search_item == _text_item)
+                    {
+                        count = 4;
+                    }
+                    //else if (search_item.Contains(_text_item))
+                    //{
+                    //    count = 4;
+                    //}
+                    else if (_text_item.Contains(_search_item))
+                    {
+                        count = 4;
+                    }
+                    //else
+                    //{
+                    //    //  int ind = dis.IndexOf(search_item[0]);
+                    //    int last_match_index = -1;
+                    //    if (true)
+                    //    {
+                    //        for (int c = 0, i = 0; c < dis.Count && i < search_item.Length; c++)
+                    //        {
+                    //            if (dis[c] == search_item[i])
+                    //            {
+                    //                last_match_index = c;
+                    //                i++;
+                    //                count++;
+                    //            }
+                    //            if (c > dis.Count-2 && count < 3)
+                    //            {
+                    //                //c = last_match_index;
+                    //                count = 0;
+                    //                c = 0;
+                    //                i++;
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
+
+
+                    if (count >= 3)
+                    {
+                        match_words.Add(text_item);
+                    }
+
+
+                }
+            }
+            foreach (string item in match_words)
+            {
+                res = res.Replace(item, "<span style='background-color:yellow'>" + item + "</span>");
+            }
+            // //  string re=  _text.Replace(value, "<span style='background-color:yellow'>"+value+"</span>");
+
+            // res = Regex.Replace( _text,value, "<span style='background-color:yellow'>" + value + "</span>");
+            return res;
+        }
+        catch (Exception e)
+        {
+
+            denger_alert(e);
+            return "";
+        }
+
+    }
+
+
+    private Stopwatch _stopwatch = new Stopwatch();
+    private string elapsedTime;
+    private Timer _timer;
+    public void Start()
+    {
+        _stopwatch.Reset();
+        _stopwatch.Start();
+        _timer = new Timer(UpdateUI, null, 0, 500);
+    }
+
+    public void Stop()
+    {
+        InvokeAsync(() =>
+        {
+            //_stopwatch.Reset();
+            _stopwatch.Stop();
+            _timer.Dispose();
+            StateHasChanged();
+        });
+    }
+    private void UpdateUI(object state)
+    {
+        try
+        {
+            InvokeAsync(() =>
+            {
+                // elapsedTime = _stopwatch.Elapsed.ToString("hh\\:mm\\:ss");
+                elapsedTime = _stopwatch.Elapsed.ToString();
+                StateHasChanged();
+            });
+        }
+        catch (Exception e) 
+        {
+
+            denger_alert(e);
+        }
+
+
+
+
+    }
+    @inject IJSRuntime JSRuntime
+    void gotobook(int id)
+    {
+        //var url = $"/Book?data={id}";
+
+        try
+        {
+            var url = $"/Book/{id}";
+            InvokeAsync(() => JSRuntime.InvokeVoidAsync("open", url, "_blank"));
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+    }
+
+
+    bool show_danger_alert = false;
+
+    async void denger_alert(Exception e)
+    {
+      
+        ErrorMessage = e.Message;
+        show_danger_alert = !show_danger_alert;
+        Stop();
+        await  Task.Delay(5500);
+        
+        show_danger_alert = !show_danger_alert;
+         await  InvokeAsync(() =>
+           {
+             
+               StateHasChanged();
+           });
+        
+    }
+
+    @implements IDisposable;
+public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        if (db != null)
+        {
+            db.Dispose();
+        }
+    }
+}

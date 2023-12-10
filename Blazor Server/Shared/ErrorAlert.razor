@@ -1,0 +1,18 @@
+﻿<style>
+ 
+
+  
+</style>
+
+<div style=" position: absolute; right: 0; left: 0;  top: 0;  bottom: 0;">
+    <div class="alert alert-danger custom-alert alert-dismissible " style="width: fit-content;    position: relative; top:0;right:0;
+     height: fit-content; min-height: 150px;     max-height: 500px;  max-width: 500px;margin: 0px auto;padding: 20px;overflow:auto;">
+         <p style="margin:auto; align-self:center;width:100%">@ErrorMessage</p>
+     
+    </div>
+</div>
+@code {
+    [Parameter]
+   public string ErrorMessage { get; set; }
+
+}

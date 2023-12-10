@@ -1,0 +1,298 @@
+﻿@page "/Export"
+@using System.Text.RegularExpressions;
+@using Microsoft.EntityFrameworkCore;
+
+@using System.Globalization;
+
+<MainTitle title="تصدير"></MainTitle>
+
+
+@if (show_alert)
+{
+	<div class="alert alert-success custom-alert alert-dismissible ">
+		<p style="margin:auto; align-self:center;">تم التصدير</p>
+
+	</div>
+}
+@if (show_danger_alert)
+{
+	<ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+
+<div class="page-body">
+  
+
+	<p style="margin:0;font-weight:600">ابحث عن كتاب:</p>
+	<div style="display:flex;flex-direction:row;">
+		<input type="text" class="custom-select" @bind-value=@book_search_words style="margin:10px 10px" />
+		<button class="btn btn-success" style="margin:10px 10px" @onclick="start_search">بحث</button>
+	</div>
+	<div style="display:flex;flex-direction:row;flex:1;">
+
+		@if (local_books_list != null)
+		{
+			<div style="display:flex;flex-direction:column;flex:2; padding-right: 20px; ">
+				<h3>الكتب</h3>
+				<div class="custom-row" style="justify-content:space-between">
+					<p class="item-margin">عدد الكتب: @local_books_list.Count</p>
+
+
+				</div>
+
+				<div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="">
+					<table class="table table-hover ">
+						<thead>
+							<tr>
+								<th>تحديد الكتاب</th>
+								<th>رقم الكتاب</th>
+								<th>اسم الكتاب</th>
+
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (Model._0bok book in local_books_list)
+							{
+								
+								@*var rowClass = book == selectedBook ? "selected" : "";*@
+								<tr style="cursor:default;">
+									<td><input type="checkbox" checked=@(selected_books_list.Any(x=>x.Bkid==book.Bkid)?true:false) @onchange='(x)=>chenge_checkbox(x,book)' /></td>
+									<td>@book.Bkid</td>
+									<td style="width:82%;">@book.Bk</td>
+
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+		}
+		@if (selected_books_list != null && selected_books_list.Count != 0)
+		{
+			<div style="display:flex;flex-direction:column;flex:2;border-right: solid #1d764d;padding-left: 10px; padding-right:10px; margin-right:10px">
+				<h3>الكتب المحددة</h3>
+				<div class="custom-row" style="justify-content:space-between">
+					<p class="item-margin">عدد الكتب: @selected_books_list.Count</p>
+					<div>
+						<button class="btn btn-success " style="" @onclick="getda">تصدير</button>
+					</div>
+
+				</div>
+			
+				<div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="">
+					<table class="table table-hover ">
+						<thead>
+							<tr>
+								<th>تحديد الكتاب</th>
+								<th>رقم الكتاب</th>
+								<th>اسم الكتاب</th>
+
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (Model._0bok book in selected_books_list)
+							{
+								@*var rowClass = book == selectedBook ? "selected" : "";*@
+								<tr style="cursor:default;">
+									<td><input type="checkbox" checked @onchange='(x)=>chenge_checkbox(x,book)' /></td>
+									<td>@book.Bkid</td>
+									<td style="width:82%;">@book.Bk</td>
+
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+		}
+	</div>
+</div>
+@code {
+
+	string new_category_name = "";
+	string book_search_words { get; set; }
+	int selected_cat_id { get; set; }
+	int selected_cat_id_to_move { get; set; }
+	Model._0cat? selected_cat { get; set; }
+	List<Model._0cat>? local_cat_list { get; set; }
+	List<Model._0bok>? local_books_list { get; set; }
+	List<Model._0bok>? selected_books_list = new List<Model._0bok>();
+	string ErrorMessage { get; set; }
+
+	bool show_edit_cat = false;
+	bool show_add_category = false;
+	bool show_move_cat = false;
+	bool show_danger_alert = false;
+	bool show_alert = false;
+	async void alert()
+	{
+		show_alert = !show_alert;
+		await Task.Delay(3500);
+		show_alert = !show_alert;
+		StateHasChanged();
+	}
+	async Task start_search()
+	{
+		try
+		{
+			string s = $@"""{book_search_words}""";
+			if (book_search_words != null && book_search_words != "")
+			{
+
+				using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+				{
+					local_books_list = await db._0boks.Where(b => EF.Functions.Contains(b.Bk, s)&&b.Cat != 16).Include(b => b.CatNavigation).ToListAsync();
+
+				}
+
+			}
+		}
+		catch (Exception e)
+		{
+			denger_alert(e);
+		}
+
+
+	}
+
+
+	void getda()
+	{
+		try
+		{
+
+
+			//var arabicFormat = new Formatting();
+		//	arabicFormat.Language = new CultureInfo("ar-EG");
+			//arabicFormat.Size = 12;
+
+			foreach (var bok in selected_books_list)
+			{
+				Model._0bok book;
+				using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+				{
+					book = db._0boks.Where(b => b.Bkid == bok.Bkid).Include(b => b.Books).Include(b => b.Titles).First();
+				}
+				var pages = book.Books.OrderBy(x => x.Part).ThenBy(x => x.Page);
+
+				string filename = Environment.CurrentDirectory + $"\\Aexport\\{book.Bk}.html";
+				string body ="كتاب : "+format(book.Bk);
+
+				foreach (var item in pages)
+				{
+					body += "<p>********************************</p><br clear=\"all\"/>" + format($"صفحة : ({item.Page} / {item.Part})");
+					body += "<br/>" + format(item.Nass);
+					
+				}
+				body = htmltemplet(body);
+				File.WriteAllText(filename, body);
+				// Create a new document
+				//DocX document = DocX.Create(Environment.CurrentDirectory + $"\\Aexport\\{book.Bk}.docx");
+				//Paragraph title = document.InsertParagraph(book.Bk);
+				//title.FontSize(18).Bold().Alignment = Alignment.center;
+				//title.Direction = Direction.RightToLeft;
+				//document.InsertParagraph("\n");
+				//foreach (var item in pages)
+				//{
+				//	item.Nass = Regex.Replace(item.Nass, "</?[^>]*>", "");
+				//	//document.InsertParagraph(item.Nass).FontSize(12).Direction = Direction.RightToLeft;
+
+				//	Paragraph nass=  document.InsertParagraph();
+				//	nass.InsertText(item.Nass, false, arabicFormat);
+				////	nass.FontSize(12).Direction = Direction.RightToLeft;
+				//	Paragraph p = document.InsertParagraph("(" + item.Part + "/" + item.Page + ")");
+				//	p.FontSize(12).Direction = Direction.LeftToRight;
+				//	p.Alignment = Alignment.left;
+				//	p.Color(System.Drawing.Color.Blue);
+
+				//	document.InsertParagraph("\n................................\n").Alignment = Alignment.center;
+				//}
+
+				//document.Save();
+			}
+
+			alert();
+		}
+		catch (Exception e)
+		{
+			denger_alert(e);
+		}
+
+
+	}
+	async void chenge_checkbox(ChangeEventArgs args, Model._0bok b)
+	{
+
+		try
+		{
+			if (args != null)
+			{
+				if ((bool)args.Value)
+				{
+					selected_books_list.Add(b);
+				}
+				else
+				{
+					selected_books_list.Remove(selected_books_list.Where(bok => bok.Bkid == b.Bkid).First());
+					var _list = new List<Model._0bok>();
+					_list.AddRange(selected_books_list);
+					selected_books_list.Clear();
+					await Task.Delay(1);
+					selected_books_list.AddRange(_list);
+					StateHasChanged();
+				}
+
+			}
+		}
+		catch (Exception e)
+		{
+			denger_alert(e);
+		}
+
+
+	}
+
+	async void denger_alert(Exception e)
+	{
+		ErrorMessage = e.Message;
+		show_danger_alert = !show_danger_alert;
+		await Task.Delay(5500);
+		show_danger_alert = !show_danger_alert;
+		await InvokeAsync(() =>
+				{
+
+					StateHasChanged();
+				});
+	}
+	string format(string nass)
+	{
+		string converted_text = "";
+		if (nass!="")
+		{
+
+			converted_text = nass;
+			converted_text = converted_text.Replace("\n", "<br>");
+			converted_text = converted_text.Replace("\r", "<br>");
+			// converted_text = Regex.Replace(converted_text, "(<span.*?[>])", "<span style='color:green;'>");
+			converted_text = Regex.Replace(converted_text, "(<span.*?[>])", "titlestart");
+			converted_text = Regex.Replace(converted_text, "(<\\/span.*?[>])", "titleend");
+			converted_text = System.Text.RegularExpressions.Regex.Replace(converted_text, @"([^\u0621-\u064A\s(<br>)\\n\d\w])", @"<span style='color:red;'>$&</span>");
+			converted_text = Regex.Replace(converted_text, "(titlestart)", "<span style='color:green;'>");
+			converted_text = Regex.Replace(converted_text, "(titleend)", "</span>");
+		}
+		else
+		{
+			converted_text = "";
+		}
+		return converted_text;
+	}
+
+	string htmltemplet(string nass)
+	{
+		return $"<!DOCTYPE html><html lang=\"ar\"><body style=\"direction: rtl;font-family:kitab;background-color: lightgoldenrodyellow;\">{nass}</body></html>";
+	}
+}
+

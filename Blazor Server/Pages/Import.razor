@@ -1,0 +1,152 @@
+﻿@page "/Import"
+<MainTitle title="استيراد كتب"></MainTitle>
+
+@using System.Net
+@using System.Net.Sockets
+@using System.IO;
+@using System.Diagnostics;
+@using System.Text.RegularExpressions
+@inject NavigationManager NavManager
+
+<style>
+    .customnav2_title {
+        display: none;
+    }
+
+    .customnav:hover {
+        flex: 6 !important;
+    }
+
+        .customnav:hover .customna2_title {
+            display: block !important;
+        }
+
+        .customnav:hover + .cutombody {
+            flex: 18 !important;
+        }
+
+</style>
+
+@if (show_danger_alert)
+{
+    <ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+<div >
+    @*   <textarea type="text" @bind=@main_text  style="width:100%;height:80vh;resize:none;font-size:160%;background-color: lightgoldenrodyellow;border-radius:8px;overflow:auto;"></textarea>*@
+    <p style="margin:0;font-weight:600">قم بتحديد المصدر :</p>
+
+    <div class="custom-row" style="justify-content:space-between !important;align-items: center;">
+        <div>
+            
+            <button class="btn btn-success item-margin" style="" @onclick="openprogram">من المكتبة الصوفية</button>
+        </div>
+    
+    </div> 
+    <div class="custom-row" style="justify-content:space-between !important;align-items: center;">
+        <div>
+            
+            <button class="btn btn-success item-margin" style="" @onclick="show_write_books">من المكتبة الشاملة</button>
+        </div>
+    
+    </div>
+    @if (show_enter_books)
+    {
+        <p style="margin:0;font-weight:600">ادخل اسماء الكتب المراد اضافتها :</p>
+        <p style="margin:0;font-weight:300;color:green">*بحيث يكون كل اسم في سطر مستقل*</p>
+
+        <textarea type="text" @bind=string_books style="width:100%;height:50vh;resize:none;font-size:160%;background-color: lightgoldenrodyellow;border-radius:8px;overflow:auto;"></textarea>
+               <div class="custom-row" style="justify-content:end !important;align-items: center;">
+            <div>
+
+                <button class="btn btn-success item-margin" style="" @onclick="open_java_program">بدء</button>
+            </div>
+
+        </div>
+    }
+   
+
+
+
+   </div>
+@code {
+    string? string_books{ get; set; }
+    void hate()
+    {
+        //using (SQLite.MasterContext db = new SQLite.MasterContext())
+        //{
+        //    var bookid = db.Books.Where(b => b.BookName.Contains("الأثر الثمين في نصرة عائشة")).Select(b => b.BookId).First();
+        //}
+    }
+
+
+
+
+    void openprogram()
+    {
+        try
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+
+            Process.Start($@"{Environment.CurrentDirectory}\ImportFromShamla.exe");
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+       
+
+    }
+    bool show_enter_books = false;
+    void show_write_books()
+    {
+        show_enter_books = !show_enter_books;
+
+    }
+
+    void open_java_program()
+    {
+        try
+        {
+            var list = string_books.Split("\n").ToList();
+            while (list.Remove("")){}
+  
+            string _books = "";
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i] = $" \"{list[i]}\" ";
+                _books += list[i];
+            }
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = "javaw.exe";
+            startInfo.Arguments = $@"-jar {Environment.CurrentDirectory}\javaApp_jar\javaApp.jar " + _books + " ";
+            startInfo.WorkingDirectory = $@"{Environment.CurrentDirectory}\javaApp_jar";
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            Process.Start(startInfo);
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+      
+
+    }
+
+    string ErrorMessage { get; set; }
+    bool show_danger_alert = false;
+    async void denger_alert(Exception e)
+    {
+        ErrorMessage = e.Message;
+        show_danger_alert = !show_danger_alert;
+        await Task.Delay(5500);
+        show_danger_alert = !show_danger_alert;
+        await InvokeAsync(() =>
+          {
+
+              StateHasChanged();
+          });
+    }
+}

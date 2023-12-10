@@ -1,0 +1,197 @@
+{
+  "Files": [
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\LibraryApp.bundle.scp.css",
+      "PackagePath": "staticwebassets\\LibraryApp.bundle.scp.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\Custom-scrpit.js",
+      "PackagePath": "staticwebassets\\Custom-scrpit.js"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\background.png",
+      "PackagePath": "staticwebassets\\background.png"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap-icons.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-icons.min.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap-icons\\font\\bootstrap-icons.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-icons\\font\\bootstrap-icons.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap-icons\\font\\bootstrap-icons.json",
+      "PackagePath": "staticwebassets\\css\\bootstrap-icons\\font\\bootstrap-icons.json"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap-icons\\font\\bootstrap-icons.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-icons\\font\\bootstrap-icons.min.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap-icons\\font\\bootstrap-icons.scss",
+      "PackagePath": "staticwebassets\\css\\bootstrap-icons\\font\\bootstrap-icons.scss"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap-icons\\font\\fonts\\bootstrap-icons.woff",
+      "PackagePath": "staticwebassets\\css\\bootstrap-icons\\font\\fonts\\bootstrap-icons.woff"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap-icons\\font\\fonts\\bootstrap-icons.woff2",
+      "PackagePath": "staticwebassets\\css\\bootstrap-icons\\font\\fonts\\bootstrap-icons.woff2"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\fonts\\Kitab-Regular.ttf",
+      "PackagePath": "staticwebassets\\css\\fonts\\Kitab-Regular.ttf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\fonts\\ScheherazadeNew-Regular.ttf",
+      "PackagePath": "staticwebassets\\css\\fonts\\ScheherazadeNew-Regular.ttf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\fonts\\UthmanicHafs_V20.ttf",
+      "PackagePath": "staticwebassets\\css\\fonts\\UthmanicHafs_V20.ttf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\fonts\\alfont_com_AlFont_com_DTHULUTH-II.ttf",
+      "PackagePath": "staticwebassets\\css\\fonts\\alfont_com_AlFont_com_DTHULUTH-II.ttf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\fonts\\amiri-quran.ttf",
+      "PackagePath": "staticwebassets\\css\\fonts\\amiri-quran.ttf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\MaterialIcons-Regular.eot",
+      "PackagePath": "staticwebassets\\css\\iconfont\\MaterialIcons-Regular.eot"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\MaterialIcons-Regular.ijmap",
+      "PackagePath": "staticwebassets\\css\\iconfont\\MaterialIcons-Regular.ijmap"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\MaterialIcons-Regular.svg",
+      "PackagePath": "staticwebassets\\css\\iconfont\\MaterialIcons-Regular.svg"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\MaterialIcons-Regular.ttf",
+      "PackagePath": "staticwebassets\\css\\iconfont\\MaterialIcons-Regular.ttf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\MaterialIcons-Regular.woff",
+      "PackagePath": "staticwebassets\\css\\iconfont\\MaterialIcons-Regular.woff"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\MaterialIcons-Regular.woff2",
+      "PackagePath": "staticwebassets\\css\\iconfont\\MaterialIcons-Regular.woff2"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\README.md",
+      "PackagePath": "staticwebassets\\css\\iconfont\\README.md"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\codepoints",
+      "PackagePath": "staticwebassets\\css\\iconfont"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\iconfont\\material-icons.css",
+      "PackagePath": "staticwebassets\\css\\iconfont\\material-icons.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\material-icons-rounded\\materil-icons.min.css",
+      "PackagePath": "staticwebassets\\css\\material-icons-rounded\\materil-icons.min.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\material-icons-rounded\\rounded.woff2",
+      "PackagePath": "staticwebassets\\css\\material-icons-rounded\\rounded.woff2"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
+      "PackagePath": "staticwebassets\\css\\open-iconic"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\ICON-LICENSE",
+      "PackagePath": "staticwebassets\\css\\open-iconic"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\README.md",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\README.md"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.eot",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.eot"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.otf",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.otf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.svg",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.svg"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.ttf",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.ttf"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.woff",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.woff"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\icon-192.png",
+      "PackagePath": "staticwebassets\\icon-192.png"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\icon-512.png",
+      "PackagePath": "staticwebassets\\icon-512.png"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\manifest.json",
+      "PackagePath": "staticwebassets\\manifest.json"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\service-worker.js",
+      "PackagePath": "staticwebassets\\service-worker.js"
+    },
+    {
+      "Id": "E:\\Projects - Blazor\\LibraryProject\\wwwroot\\service-worker.published.js",
+      "PackagePath": "staticwebassets\\service-worker.published.js"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.LibraryApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.LibraryApp.props",
+      "PackagePath": "build\\LibraryApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.LibraryApp.props",
+      "PackagePath": "buildMultiTargeting\\LibraryApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.LibraryApp.props",
+      "PackagePath": "buildTransitive\\LibraryApp.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

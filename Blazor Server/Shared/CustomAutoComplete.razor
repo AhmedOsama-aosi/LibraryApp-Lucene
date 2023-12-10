@@ -1,0 +1,62 @@
+﻿
+<div class="parent-drop-down-menu">
+
+	<input type="text" lang="ar" @bind-value=@input @onfocusin="(x)=>showmenu(x,ref displayvalue)" @onfocusout="(x)=>showmenu(x,ref displayvalue)" @oninput="input_changed" class="custom-select item-margin" />
+
+
+
+	@if (Values != null)
+	{
+		<div class="drop-down-menu" style="display:@displayvalue">
+			@if (Values is List<Model._0cat>)
+			{
+				@foreach (var item in Values)
+				{
+					<label class="dropdown-item" @onclick="()=>item_clicked.InvokeAsync(item.Id)">@item.Name</label>
+					
+				}
+			}
+			else if (Values is List<Model._0bok>)
+			{
+				@foreach (var item in Values)
+				{
+					<label class="dropdown-item" @onclick="()=>item_clicked.InvokeAsync(item.Bkid)">@item.Bk</label>
+
+				}
+			}
+
+		</div>
+	}
+
+
+
+</div>
+@code {
+	[Parameter]
+	public dynamic Values { get; set; }
+	[Parameter]
+	public string input { get; set; }
+	[Parameter]
+	public EventCallback<int> item_clicked { get; set; }
+	[Parameter]
+	public EventCallback<ChangeEventArgs> input_changed { get; set; }
+
+	string displayvalue = "none";
+	
+	
+	void showmenu(FocusEventArgs args, ref string svalue)
+	{
+		string s = args.Type;
+		if (s == "focusin")
+		{
+			svalue = "block";
+		}
+		else
+		{
+			Task.Delay(125).Wait();
+			svalue = "none";
+			StateHasChanged();
+		}
+
+	}
+}

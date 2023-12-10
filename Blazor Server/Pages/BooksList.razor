@@ -1,0 +1,414 @@
+﻿@page "/Booklist"
+@using Microsoft.EntityFrameworkCore;
+@using System.Diagnostics;
+@using System.Globalization;
+
+<style>
+   
+   
+</style>
+<MainTitle title="قائمة الكتب"></MainTitle>
+
+
+@if (show_danger_alert)
+{
+    <ErrorAlert ErrorMessage="@ErrorMessage"></ErrorAlert>
+}
+
+  <div class="page-body">
+    <p style="margin:0;font-weight:600">ابحث عن كتاب:</p>
+    <div style="display:flex;flex-direction:row;">
+        <input type="text"  class="custom-select" @bind-value=@book_search_words style="margin:10px 10px" />
+        <button class="btn btn-success" style="margin:10px 10px" @onclick="start_search">بحث</button>
+    </div>
+    
+    <p>المدة: @elapsedTime</p>
+    @if (searchBooksResult == null)
+    {
+
+    }
+    else
+    {
+        <div style="display:flex;flex-direction:column;flex:2;">
+            <div style="display:flex;flex-direction:row;justify-content:space-between">
+                <h3>نتائج البحث في الكتب</h3>
+                <span class="oi oi-x btn" style="color:#1d764d" @onclick="closeSearch"> </span>
+            </div>
+            <p>النتائج: @searchBooksResult.Length</p>
+            <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="">
+                <table class="table table-hover ">
+                    <thead>
+                        <tr>
+                            <th>رقم الكتاب</th>
+                            <th>اسم الكتاب</th>
+                            <th>القسم</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Model._0bok book in searchBooksResult)
+                        {
+                            var rowClass = book == selectedBook ? "selected" : "";
+                            <tr @onclick="()=>viewBook(book)" class="@rowClass" style="cursor:pointer;">
+                                <td>@book.Bkid</td>
+                                <td>
+                                    <span class="itemtitle"> @book.Bk <span class="itemtitle_discrpiton">@book.Betaka</span></span>
+                                </td>
+                                <td>@book.CatNavigation.Name</td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    }
+
+<div style="display:flex;flex-direction:column;">
+     @if (selectedBook != null)
+        {
+            <div style="display:flex;flex-direction:row;justify-content:space-between">
+                <h3 style="width: 48vw; font-size: 1.4rem;">كتاب : @selectedBook.Bk</h3>
+                <div style="display:flex;flex-direction:row;justify-content:flex-start">
+                    @*<button class="btn btn-success" @onclick="()=> openBookOnNewTab()" style="color:white;margin:0px 10px;height:fit-content;padding:2px 5px;">نافذة جديدة<span class="oi oi-external-link btn" style="color:white;padding:0px 4px;font-size:12px;"></span></button>*@
+                    <span class="oi oi-x btn" style="color:#1d764d" @onclick="closeBook"> </span>
+                </div>
+
+            </div>
+        }
+        @if (selectedBook != null)
+        {
+            <BookView selectedBook="selectedBook" showtitle="false" show_NewTab_button="true"></BookView>
+        }
+
+        @*<div  style="display:flex;flex-direction:row;flex:1;">*@
+        <div class="cat-book" >
+        @if (categoriesResult == null)
+        {
+               
+            <p><em>جاري عرض الاقسام ...</em></p>
+        }
+        else
+        {
+                Stop();
+                <div style="display:flex;flex-direction:column;flex:1;">
+                <h3>الاقسام</h3>
+               
+                    <div style="display:flex;flex-direction:row;">
+                        <input type="text" lang="ar" class="custom-select" @bind-value=@category_search_words style="margin:10px 10px;" />
+                        <button class="btn btn-success" style="margin:10px 10px" @onclick="start_search_category">بحث</button>
+                        <span style="flex:1"></span>
+                        @if (searchCategoriesResult != null)
+                        {
+                            <span class="oi oi-x btn item-center" style="color:#1d764d;" @onclick="closeCategroiesSearchResults"> </span>
+                        }
+                     
+                    </div>
+                    @if (searchCategoriesResult != null)
+                    {
+                        <p>النتائج: @searchCategoriesResult.Length</p>
+                    }
+                    else
+                    {
+                        <p>النتائج: @categoriesResult.Length</p>
+                    }
+                    <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="max-height:52vh">
+                    <table class="table table-hover ">
+                        <thead>
+                            <tr>
+                                <th>الرقم</th>
+                                <th>الاسم</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                                @{
+                                    Model._0cat[] list;
+                                    if (searchCategoriesResult!=null)
+                                    {
+                                        list = searchCategoriesResult;
+                                    }
+                                    else
+                                    {
+                                        list = categoriesResult;
+                                    }
+                                    @foreach (Model._0cat category in list)
+                                    {
+
+                                        var rowClass = category == selectedCategory ? "selected" : "";
+
+                                        <tr @onclick="()=>viewBooks(category)" class="@rowClass" style="cursor:pointer;">
+                                            <td>@category.Id</td>
+                                            <td>@category.Name</td>
+                                        </tr>
+                                    }
+                            
+                            }
+                           
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        }
+        <br />
+        @if (booksResult == null)
+        {
+
+        }
+        else
+        {
+                <div style="display:flex;flex-direction:column;flex:2;border-right: solid #1d764d;  padding-right:10px;margin-right:10px;">
+                <h3>الكتب</h3>
+                <p>النتائج: @booksResult.Length</p>
+                <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive" style="max-height:60vh">
+                    <table class="table table-hover ">
+                        <thead>
+                            <tr>
+                                <th>رقم الكتاب</th>
+                                <th>اسم الكتاب</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Model._0bok book in booksResult)
+                            {
+                                var rowClass = book == selectedBook ? "selected" : "";
+                                <tr @onclick="()=>viewBook(book)" class="@rowClass" style="cursor:pointer;">
+                                    <td>@book.Bkid</td>
+                                    <td>
+                                            <span class="itemtitle"> @book.Bk <span class="itemtitle_discrpiton">@book.Betaka</span></span>
+                                       </td>
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        }
+
+    </div>
+</div>
+
+</div>
+
+
+
+@code {
+    string theurl = "/Book";
+    string thefunc = "open";
+    string thetarget = "_blank";
+    Model._0bok[]? booksResult { get; set; }
+    Model._0cat[]? categoriesResult { get; set; }
+    Model._0bok selectedBook { get; set; }
+    Model._0cat selectedCategory { get; set; }
+    List<Model.Book>  selectedpart { get; set; }
+    Model._0bok[]? searchBooksResult { get; set; }
+    Model._0cat[]? searchCategoriesResult { get; set; }
+    string converted_text = "";
+    string book_search_words { get; set; }
+    string category_search_words { get; set; }
+
+    int pageindex = 0;
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            try
+            {
+               
+                Start();
+                categoriesResult = await Task.Run(getcat);
+            }
+            catch (Exception e)
+            {
+                denger_alert(e);
+            }
+
+
+
+
+        }
+
+
+    }
+    async Task<Model._0cat[]> getcat()
+    {
+        using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+        {
+            return await db._0cats.Where(c => c.Id != 0 && c.Id!=16).OrderBy(c => c.Name).ToArrayAsync();
+        }
+
+    }
+
+    async Task start_search()
+    {
+        try
+        {
+            string s = $@"""{book_search_words}""";
+            if (book_search_words != null && book_search_words != "")
+            {
+                Start();
+                using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+                {
+                    searchBooksResult = await db._0boks.Where(b => EF.Functions.Contains(b.Bk, s) && b.Cat!=16).Include(b => b.CatNavigation).ToArrayAsync();
+
+                }
+                Stop();
+            }
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+
+        
+    }
+    async Task start_search_category()
+    {
+        try
+        {
+            string s = $@"""{category_search_words}""";
+            if (category_search_words != null && category_search_words != "")
+            {
+                Start();
+                using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+                {
+                    searchCategoriesResult = await db._0cats.Where(b => EF.Functions.Contains(b.Name, s)).ToArrayAsync();
+
+                }
+                Stop();
+            }
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+      
+     
+    }
+    void closeCategroiesSearchResults()
+    {
+        searchCategoriesResult = null;
+        category_search_words = "";
+    }
+    void closeSearch()
+    {
+        searchBooksResult = null;
+    }
+   
+    @inject IJSRuntime JSRuntime
+     void openBookOnNewTab()
+    {
+        var url = $"/Book/{selectedBook.Bkid}";
+        InvokeAsync(() => JSRuntime.InvokeVoidAsync("open", url, "_blank"));
+       // NavigationManager.NavigateTo("/Book", true);
+        //var json = JsonSerializer.Serialize(selectedBook);
+        //var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
+       // var url = "/Book";
+        //  await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+        //await JSRuntime.InvokeVoidAsync("open", new object[2] { url, "_blank" }  );
+    }
+    async Task viewBook(Model._0bok book)
+    {       
+
+        try
+        {
+            Start();
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                book.Books = await db.Books.Where(b => b.Bookid == book.Bkid).OrderBy(p => p.Id).ToArrayAsync();
+                selectedBook = book;
+
+
+            }
+            Stop();
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+    
+
+    }
+
+    
+    async Task viewBooks(Model._0cat category)
+    {
+        try
+        {
+            Start();
+            using (Model.LibraryDbContext db = new Model.LibraryDbContext())
+            {
+                booksResult = await db._0boks.Where(b => b.Cat == category.Id).OrderBy(b => b.Bkid).ToArrayAsync();
+                selectedCategory = category;
+            }
+            Stop();
+        }
+        catch (Exception e)
+        {
+            denger_alert(e);
+        }
+
+    }
+    void closeBook()
+    {
+        selectedBook = null;
+    }
+    private Stopwatch _stopwatch = new Stopwatch();
+    private string elapsedTime;
+    private Timer _timer;
+    public void Start()
+    {
+        //_stopwatch.Reset();
+        _stopwatch.Start();
+        _timer = new Timer(UpdateUI, null, 0, 500);
+    }
+
+    public void Stop()
+    {
+        _stopwatch.Stop();
+
+       
+        _timer.Dispose();
+
+    }
+    private void UpdateUI(object state)
+    {
+        InvokeAsync(() =>
+        {
+            elapsedTime = _stopwatch.Elapsed.ToString("hh\\:mm\\:ss");
+            StateHasChanged();
+        });
+
+       
+    }
+    string ErrorMessage { get; set; }
+    bool show_danger_alert = false;
+    
+    async void denger_alert(Exception e)
+    {
+       
+        ErrorMessage = e.Message;
+        show_danger_alert = !show_danger_alert;
+        await Task.Delay(5500);
+        show_danger_alert = !show_danger_alert;
+        await InvokeAsync(() =>
+          {
+
+              StateHasChanged();
+          });
+    }
+}

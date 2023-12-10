@@ -1,0 +1,117 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = LibraryApp
+build_property.RootNamespace = LibraryApp
+build_property.ProjectDir = E:\Projects - Blazor\LibraryProject\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = E:\Projects - Blazor\LibraryProject
+build_property._RazorSourceGeneratorDebug = 
+
+[E:/Projects - Blazor/LibraryProject/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Book.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQm9vay5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Bookmarks.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQm9va21hcmtzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/BooksList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQm9va3NMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Export.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXhwb3J0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Import.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW1wb3J0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/ManageBooks.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWFuYWdlQm9va3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/ManageCategories.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWFuYWdlQ2F0ZWdvcmllcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Quran.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUXVyYW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Search.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2VhcmNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/Setting.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/BookView.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEJvb2tWaWV3LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/CustomAutoComplete.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEN1c3RvbUF1dG9Db21wbGV0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/DropDown.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXERyb3BEb3duLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/EmptyLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEVtcHR5TGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/ErrorAlert.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEVycm9yQWxlcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/MainTitle.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5UaXRsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/SurveyPrompt.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFN1cnZleVByb21wdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-cx8tzu5vs3
+
+[E:/Projects - Blazor/LibraryProject/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-o5fv5k8b4d
+
+[E:/Projects - Blazor/LibraryProject/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Projects - Blazor/LibraryProject/Pages/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
